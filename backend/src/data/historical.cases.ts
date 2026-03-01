@@ -1,11 +1,14 @@
 import { Case } from "../models/case.model";
+import { DecisionDraft } from "../models/decision.model";
+import { HumanReview } from "../models/human-review.model";
 
 export const mockCases: Case[] = [
   {
     id: 1,
     userId: 1,
-    status: "evaluated",
+    status: "AI_DRAFTED",
     createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     context: {
       source: "prototype",
       note: "Seed case for UI demo"
@@ -21,39 +24,53 @@ export const mockCases: Case[] = [
         }
       ]
     },
-    latestDecision: {
-      id: "seed-decision-1",
-      caseId: 1,
-      outcome: "review",
-      rationale: "Seed AI draft for demo case; human should review before acting.",
-      createdAt: new Date().toISOString()
-    }
+    aiDecisions: [
+      {
+        id: "seed-ai-draft-1",
+        caseId: 1,
+        riskLevel: "LOW",
+        recommendedAction: "MONITOR",
+        justification:
+          "Seed AI draft for demo case; recommend monitoring and human review before any irreversible action.",
+        confidence: 0.62,
+        fairnessFlags: [],
+        createdAt: new Date().toISOString()
+      }
+    ],
+    humanReviews: []
   },
   {
     id: 2,
     userId: 2,
-    status: "new",
+    status: "NEW",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(),
     context: {
       source: "prototype",
       note: "Freshly created case; not yet evaluated"
-    }
+    },
+    aiDecisions: [],
+    humanReviews: []
   },
   {
     id: 3,
     userId: 3,
-    status: "evaluating",
+    status: "UNDER_REVIEW",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 9).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 9).toISOString(),
     context: {
       source: "prototype",
       note: "In-flight evaluation (signals/decision not persisted yet)"
-    }
+    },
+    aiDecisions: [],
+    humanReviews: []
   },
   {
     id: 4,
     userId: 1,
-    status: "evaluated",
+    status: "APPROVED",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 4).toISOString(),
     context: {
       source: "prototype",
       note: "Very low risk; stable behavior"
@@ -69,19 +86,37 @@ export const mockCases: Case[] = [
         }
       ]
     },
-    latestDecision: {
-      id: "decision-4-approve",
-      caseId: 4,
-      outcome: "approve",
-      rationale: "Risk signals are minimal and consistent with historical behavior. Approve with routine monitoring.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 4).toISOString()
-    }
+    aiDecisions: [
+      {
+        id: "ai-draft-4",
+        caseId: 4,
+        riskLevel: "LOW",
+        recommendedAction: "NO_ACTION",
+        justification:
+          "Risk signals are minimal and consistent with historical behavior. No action needed; routine monitoring only.",
+        confidence: 0.78,
+        fairnessFlags: [],
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 2).toISOString()
+      } satisfies DecisionDraft
+    ],
+    humanReviews: [
+      {
+        id: "review-4-approve",
+        caseId: 4,
+        reviewerId: "analyst-1",
+        type: "APPROVE_AI",
+        finalAction: "NO_ACTION",
+        rationale: "Approved AI recommendation for low-risk case.",
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 4).toISOString()
+      } satisfies HumanReview
+    ]
   },
   {
     id: 5,
     userId: 4,
-    status: "evaluated",
+    status: "AI_DRAFTED",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6 + 1000 * 60 * 9).toISOString(),
     context: {
       source: "prototype",
       note: "Borderline low/medium; single weak anomaly"
@@ -97,19 +132,27 @@ export const mockCases: Case[] = [
         }
       ]
     },
-    latestDecision: {
-      id: "decision-5-review",
-      caseId: 5,
-      outcome: "review",
-      rationale: "A small deviation is present; recommend lightweight review to confirm legitimacy before taking any action.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6 + 1000 * 60 * 9).toISOString()
-    }
+    aiDecisions: [
+      {
+        id: "ai-draft-5",
+        caseId: 5,
+        riskLevel: "LOW",
+        recommendedAction: "MONITOR",
+        justification:
+          "A small deviation is present; recommend lightweight review and monitoring before taking any action.",
+        confidence: 0.61,
+        fairnessFlags: [],
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6 + 1000 * 60 * 9).toISOString()
+      }
+    ],
+    humanReviews: []
   },
   {
     id: 6,
     userId: 5,
-    status: "evaluated",
+    status: "AI_DRAFTED",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 15).toISOString(),
     context: {
       source: "prototype",
       note: "Medium risk; velocity anomaly + mild geo change"
@@ -130,19 +173,27 @@ export const mockCases: Case[] = [
         }
       ]
     },
-    latestDecision: {
-      id: "decision-6-review",
-      caseId: 6,
-      outcome: "review",
-      rationale: "Velocity spike warrants review; geo change is suggestive but not definitive. Recommend human validation and continued monitoring.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 15).toISOString()
-    }
+    aiDecisions: [
+      {
+        id: "ai-draft-6",
+        caseId: 6,
+        riskLevel: "MEDIUM",
+        recommendedAction: "TEMP_HOLD",
+        justification:
+          "Velocity spike warrants review; geo change is suggestive but not definitive. Recommend temporary hold pending human validation.",
+        confidence: 0.58,
+        fairnessFlags: [],
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 15).toISOString()
+      }
+    ],
+    humanReviews: []
   },
   {
     id: 7,
     userId: 6,
-    status: "evaluated",
+    status: "AI_DRAFTED",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4 + 1000 * 60 * 22).toISOString(),
     context: {
       source: "prototype",
       note: "Conflicting signals; medium score but mixed evidence"
@@ -163,19 +214,27 @@ export const mockCases: Case[] = [
         }
       ]
     },
-    latestDecision: {
-      id: "decision-7-review",
-      caseId: 7,
-      outcome: "review",
-      rationale: "Large amount deviation increases risk, but a known counterparty reduces concern. Recommend review to reconcile conflicting indicators.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4 + 1000 * 60 * 22).toISOString()
-    }
+    aiDecisions: [
+      {
+        id: "ai-draft-7",
+        caseId: 7,
+        riskLevel: "MEDIUM",
+        recommendedAction: "MONITOR",
+        justification:
+          "Large amount deviation increases risk, but a known counterparty reduces concern. Recommend review to reconcile conflicting indicators and monitor.",
+        confidence: 0.52,
+        fairnessFlags: [],
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4 + 1000 * 60 * 22).toISOString()
+      }
+    ],
+    humanReviews: []
   },
   {
     id: 8,
     userId: 7,
-    status: "evaluated",
+    status: "AI_DRAFTED",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 31).toISOString(),
     context: {
       source: "prototype",
       note: "High risk; structuring pattern across multiple transfers"
@@ -196,19 +255,27 @@ export const mockCases: Case[] = [
         }
       ]
     },
-    latestDecision: {
-      id: "decision-8-decline",
-      caseId: 8,
-      outcome: "decline",
-      rationale: "Structuring behavior and velocity patterns strongly indicate elevated compliance risk. Decline and escalate for follow-up review.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 31).toISOString()
-    }
+    aiDecisions: [
+      {
+        id: "ai-draft-8",
+        caseId: 8,
+        riskLevel: "HIGH",
+        recommendedAction: "ESCALATE",
+        justification:
+          "Structuring behavior and velocity patterns strongly indicate elevated compliance risk. Escalate for follow-up review.",
+        confidence: 0.72,
+        fairnessFlags: [],
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 31).toISOString()
+      }
+    ],
+    humanReviews: []
   },
   {
     id: 9,
     userId: 8,
-    status: "evaluated",
+    status: "AI_DRAFTED",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 44).toISOString(),
     context: {
       source: "prototype",
       note: "Extreme risk; multiple strong anomalies"
@@ -234,19 +301,27 @@ export const mockCases: Case[] = [
         }
       ]
     },
-    latestDecision: {
-      id: "decision-9-decline",
-      caseId: 9,
-      outcome: "decline",
-      rationale: "Multiple high-severity signals (geo, amount, velocity) indicate a likely anomalous event. Decline and recommend immediate review/escalation.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 44).toISOString()
-    }
+    aiDecisions: [
+      {
+        id: "ai-draft-9",
+        caseId: 9,
+        riskLevel: "HIGH",
+        recommendedAction: "ESCALATE",
+        justification:
+          "Multiple high-severity signals (geo, amount, velocity) indicate a likely anomalous event. Escalate for immediate human review.",
+        confidence: 0.74,
+        fairnessFlags: [],
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 44).toISOString()
+      }
+    ],
+    humanReviews: []
   },
   {
     id: 10,
     userId: 9,
-    status: "overridden",
+    status: "OVERRIDDEN",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 58).toISOString(),
     context: {
       source: "prototype",
       note: "Override scenario: AI suggested decline; human approved with documented rationale"
@@ -267,13 +342,31 @@ export const mockCases: Case[] = [
         }
       ]
     },
-    latestDecision: {
-      id: "decision-10-override-approve",
-      caseId: 10,
-      outcome: "approve",
-      rationale: "Human override: verified user travel + merchant verification. Approve with enhanced monitoring despite elevated aggregate risk.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 58).toISOString()
-    }
+    aiDecisions: [
+      {
+        id: "ai-draft-10",
+        caseId: 10,
+        riskLevel: "HIGH",
+        recommendedAction: "ESCALATE",
+        justification:
+          "Elevated risk signals suggest escalation for review; recommend hold pending verification.",
+        confidence: 0.69,
+        fairnessFlags: [],
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 20).toISOString()
+      }
+    ],
+    humanReviews: [
+      {
+        id: "review-10-override",
+        caseId: 10,
+        reviewerId: "supervisor-1",
+        type: "OVERRIDE",
+        finalAction: "MONITOR",
+        rationale:
+          "Human override: verified user travel + merchant verification. Monitor with enhanced scrutiny despite elevated aggregate risk.",
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 58).toISOString()
+      }
+    ]
   }
 ];
 

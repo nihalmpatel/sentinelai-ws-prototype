@@ -33,13 +33,13 @@ evaluateRouter.post("/", async (req, res) => {
     };
 
     const createdCase = caseManager.createCase(body.userId, context);
-    const decision = await caseManager.evaluate(createdCase);
+    const decisionDraft = await caseManager.evaluate(createdCase);
 
     return res.status(200).json({
       caseId: createdCase.id,
       case: createdCase,
       riskProfile: createdCase.riskProfile,
-      decision
+      decisionDraft
     });
   } catch (err) {
     // In a real system we'd have structured error handling here.

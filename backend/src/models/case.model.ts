@@ -1,16 +1,25 @@
 import { RiskProfile } from "./risk.model";
-import { Decision } from "./decision.model";
+import { DecisionDraft } from "./decision.model";
+import { HumanReview } from "./human-review.model";
 
 export interface Case {
   id: number;
   userId: number;
-  status: "new" | "evaluating" | "evaluated" | "overridden";
+  status:
+    | "NEW"
+    | "AI_DRAFTED"
+    | "UNDER_REVIEW"
+    | "APPROVED"
+    | "OVERRIDDEN"
+    | "CLOSED";
   createdAt: string;
+  updatedAt: string;
   context?: Record<string, unknown>;
   /**
    * Optional, populated once the case has been evaluated.
    */
   riskProfile?: RiskProfile;
-  latestDecision?: Decision;
+  aiDecisions: DecisionDraft[];
+  humanReviews: HumanReview[];
 }
 

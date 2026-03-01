@@ -2,11 +2,17 @@
 // For now, this is just a stub interface.
 
 class LlmClient {
-  async invoke(prompt: string): Promise<unknown> {
+  async invoke(promptJson: string): Promise<unknown> {
     // Real implementation will call an external LLM API.
+    // Input must be JSON-only for this prototype contract.
+    void promptJson;
     return {
-      outcome: "review",
-      rationale: `Stub LLM response for prompt: ${prompt}`
+      riskLevel: "MEDIUM",
+      recommendedAction: "MONITOR",
+      justification:
+        "Stub LLM decision draft. Recommend monitoring and human review based on provided signals.",
+      confidence: 0.55,
+      fairnessFlags: []
     };
   }
 }

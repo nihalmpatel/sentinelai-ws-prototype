@@ -3,14 +3,29 @@ import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import type { Case } from '../models/case.model';
 import type { RiskProfile } from '../models/risk.model';
-import type { Decision } from '../models/decision.model';
+import type { DecisionDraft, RecommendedAction } from '../models/decision.model';
+import type { HumanReview, IrreversibleAction, ReviewType } from '../models/review.model';
 import { environment } from '../../../environments/environment';
 
 export interface EvaluateResponse {
   caseId: number;
   case: Case;
   riskProfile?: RiskProfile;
-  decision: Decision;
+  decisionDraft: DecisionDraft;
+}
+
+export interface SubmitReviewRequest {
+  reviewerId: string;
+  type: ReviewType;
+  finalAction?: RecommendedAction;
+  rationale?: string;
+  irreversibleAction?: IrreversibleAction;
+  confirmedIrreversible?: boolean;
+}
+
+export interface SubmitReviewResponse {
+  case: Case;
+  review: HumanReview;
 }
 
 @Injectable({
@@ -29,6 +44,13 @@ export class ComplianceService {
 
   getCase(id: number): Observable<Case> {
     return this.http.get<Case>(`${this.baseUrl}/cases/${id}`);
+  }
+
+  submitReview(caseId: number, request: SubmitReviewRequest): Observable<SubmitReviewResponse> {
+    return this.http.post<SubmitReviewResponse>(
+      `${this.baseUrl}/cases/${caseId}/reviews`,
+      request
+    );
   }
 
   evaluateSampleTransaction(userId = 1): Observable<EvaluateResponse> {

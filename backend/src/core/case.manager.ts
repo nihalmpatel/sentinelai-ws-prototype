@@ -1,11 +1,16 @@
 import { Case } from "../models/case.model";
-import { Decision } from "../models/decision.model";
+import { DecisionDraft, RecommendedAction } from "../models/decision.model";
 import { computeRiskSignals } from "../engines/risk.engine";
 import { evaluateCaseWithAi } from "../engines/ai.engine";
 import { applyGuardrailsToDecision } from "./guardrails";
 import { CaseStateMachine } from "./state.machine";
 import { mockCases } from "../data/historical.cases";
 import { auditLogger } from "../audit/audit.logger";
+import {
+  HumanReview,
+  IrreversibleAction,
+  ReviewType
+} from "../models/human-review.model";
 
 // High-level orchestration of case lifecycle (in-memory only for prototype).
 export class CaseManager {
@@ -20,12 +25,16 @@ export class CaseManager {
         ? Math.max(...mockCases.map((c) => c.id)) + 1
         : 1;
 
+    const now = new Date().toISOString();
     const created: Case = {
       id: nextId,
       userId,
-      status: "new",
-      createdAt: new Date().toISOString(),
-      context
+      status: "NEW",
+      createdAt: now,
+      updatedAt: now,
+      context,
+      aiDecisions: [],
+      humanReviews: []
     };
 
     mockCases.push(created);
@@ -36,28 +45,214 @@ export class CaseManager {
   /**
    * Evaluate an existing case with risk and AI, updating in-memory state.
    */
-  async evaluate(caseInput: Case): Promise<Decision> {
+  async evaluate(caseInput: Case): Promise<DecisionDraft> {
     const riskProfile = computeRiskSignals(caseInput);
+    caseInput.riskProfile = riskProfile;
     const aiDecision = await evaluateCaseWithAi(caseInput);
     const guardedDecision = applyGuardrailsToDecision(aiDecision, riskProfile);
 
-    caseInput.riskProfile = riskProfile;
-    caseInput.latestDecision = guardedDecision;
+    caseInput.aiDecisions.push(guardedDecision);
+    caseInput.updatedAt = new Date().toISOString();
 
-    this.stateMachine.transition(caseInput, "evaluated");
+    if (caseInput.status === "NEW") {
+      this.stateMachine.transition(caseInput, "AI_DRAFTED");
+      auditLogger.log({
+        id: `audit-${Date.now()}-transition`,
+        actorType: "SYSTEM",
+        action: "CASE_STATE_TRANSITION",
+        caseId: caseInput.id,
+        timestamp: new Date().toISOString(),
+        metadata: { from: "NEW", to: "AI_DRAFTED" }
+      });
+    }
 
     auditLogger.log({
-      id: `ai-decision-${Date.now()}`,
-      type: "AI_DECISION_DRAFT",
+      id: `audit-${Date.now()}-ai-draft`,
+      actorType: "AI",
+      action: "AI_DECISION_DRAFT_CREATED",
       caseId: caseInput.id,
-      createdAt: new Date().toISOString(),
-      payload: {
-        riskProfile,
-        decision: guardedDecision
-      }
+      timestamp: new Date().toISOString(),
+      metadata: { riskProfile, decisionDraft: guardedDecision }
     });
 
     return guardedDecision;
+  }
+
+  listCases(): Case[] {
+    return [...mockCases];
+  }
+
+  getCase(caseId: number): Case | undefined {
+    return mockCases.find((c) => c.id === caseId);
+  }
+
+  submitHumanReview(params: {
+    caseId: number;
+    reviewerId: string;
+    type: ReviewType;
+    finalAction?: RecommendedAction;
+    rationale?: string;
+    irreversibleAction?: IrreversibleAction;
+    confirmedIrreversible?: boolean;
+  }): { updatedCase: Case; review: HumanReview } {
+    const found = this.getCase(params.caseId);
+    if (!found) {
+      throw new Error("Case not found");
+    }
+
+    if (found.status === "NEW") {
+      throw new Error("Case has no AI draft yet");
+    }
+
+    const latestAi = found.aiDecisions.at(-1);
+    if (!latestAi) {
+      throw new Error("Case has no AI draft yet");
+    }
+
+    const now = new Date().toISOString();
+    const reviewType = params.type;
+
+    if (
+      params.irreversibleAction &&
+      params.irreversibleAction !== "PERMANENT_ACCOUNT_CLOSURE" &&
+      params.irreversibleAction !== "LAW_ENFORCEMENT_REPORT"
+    ) {
+      throw new Error("Invalid irreversibleAction");
+    }
+
+    if (reviewType === "OVERRIDE") {
+      if (
+        typeof params.finalAction !== "string" ||
+        (params.finalAction !== "NO_ACTION" &&
+          params.finalAction !== "MONITOR" &&
+          params.finalAction !== "TEMP_HOLD" &&
+          params.finalAction !== "ESCALATE")
+      ) {
+        throw new Error("Override requires an explicit finalAction");
+      }
+      if (typeof params.rationale !== "string" || params.rationale.trim().length === 0) {
+        throw new Error("Override requires a textual rationale");
+      }
+    }
+
+    const finalAction =
+      reviewType === "APPROVE_AI"
+        ? latestAi.recommendedAction
+        : (params.finalAction as RecommendedAction);
+
+    const rationale =
+      reviewType === "APPROVE_AI"
+        ? (params.rationale?.trim() || "Approved AI recommendation.")
+        : (params.rationale as string).trim();
+
+    if (params.irreversibleAction) {
+      if (params.confirmedIrreversible !== true) {
+        auditLogger.log({
+          id: `audit-${Date.now()}-irreversible-rejected`,
+          actorType: "HUMAN",
+          actorId: params.reviewerId,
+          action: "IRREVERSIBLE_ACTION_REJECTED",
+          caseId: found.id,
+          timestamp: now,
+          metadata: {
+            irreversibleAction: params.irreversibleAction,
+            reason: "Missing explicit confirmation"
+          }
+        });
+        throw new Error("Irreversible action requires explicit confirmation");
+      }
+    }
+
+    // Under-review is optional in the prototype, but we keep the transition for audit clarity.
+    if (found.status === "AI_DRAFTED") {
+      this.stateMachine.transition(found, "UNDER_REVIEW");
+      auditLogger.log({
+        id: `audit-${Date.now()}-transition-under-review`,
+        actorType: "SYSTEM",
+        action: "CASE_STATE_TRANSITION",
+        caseId: found.id,
+        timestamp: now,
+        metadata: { from: "AI_DRAFTED", to: "UNDER_REVIEW" }
+      });
+    }
+
+    const review: HumanReview = {
+      id: `review-${Date.now()}`,
+      caseId: found.id,
+      reviewerId: params.reviewerId,
+      type: reviewType,
+      finalAction,
+      rationale,
+      irreversibleAction: params.irreversibleAction,
+      confirmedIrreversible: params.confirmedIrreversible,
+      createdAt: now
+    };
+    found.humanReviews.push(review);
+    found.updatedAt = now;
+
+    auditLogger.log({
+      id: `audit-${Date.now()}-human-review`,
+      actorType: "HUMAN",
+      actorId: params.reviewerId,
+      action: "HUMAN_REVIEW_SUBMITTED",
+      caseId: found.id,
+      timestamp: now,
+      metadata: {
+        type: reviewType,
+        finalAction,
+        irreversibleAction: params.irreversibleAction ?? null,
+        rationale
+      }
+    });
+
+    const targetStatus =
+      reviewType === "APPROVE_AI" ? "APPROVED" : ("OVERRIDDEN" as const);
+    this.stateMachine.transition(found, targetStatus);
+    auditLogger.log({
+      id: `audit-${Date.now()}-transition-final`,
+      actorType: "SYSTEM",
+      action: "CASE_STATE_TRANSITION",
+      caseId: found.id,
+      timestamp: now,
+      metadata: { from: "UNDER_REVIEW", to: targetStatus }
+    });
+
+    if (params.irreversibleAction) {
+      auditLogger.log({
+        id: `audit-${Date.now()}-irreversible-confirmed`,
+        actorType: "HUMAN",
+        actorId: params.reviewerId,
+        action: "IRREVERSIBLE_ACTION_CONFIRMED",
+        caseId: found.id,
+        timestamp: now,
+        metadata: { irreversibleAction: params.irreversibleAction }
+      });
+
+      this.stateMachine.transition(found, "CLOSED");
+      auditLogger.log({
+        id: `audit-${Date.now()}-transition-closed`,
+        actorType: "SYSTEM",
+        action: "CASE_STATE_TRANSITION",
+        caseId: found.id,
+        timestamp: now,
+        metadata: { from: targetStatus, to: "CLOSED" }
+      });
+
+      auditLogger.log({
+        id: `audit-${Date.now()}-irreversible-executed`,
+        actorType: "SYSTEM",
+        action: "IRREVERSIBLE_ACTION_EXECUTED",
+        caseId: found.id,
+        timestamp: now,
+        metadata: { irreversibleAction: params.irreversibleAction }
+      });
+    }
+
+    return { updatedCase: found, review };
+  }
+
+  getCaseAudit(caseId: number) {
+    return auditLogger.listForCase(caseId);
   }
 }
 

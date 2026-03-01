@@ -1,10 +1,15 @@
-export type DecisionOutcome = 'approve' | 'review' | 'decline';
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
-export interface Decision {
+export type RecommendedAction = 'NO_ACTION' | 'MONITOR' | 'TEMP_HOLD' | 'ESCALATE';
+
+export interface DecisionDraft {
   id: string;
   caseId: number;
-  outcome: DecisionOutcome;
-  rationale: string;
+  riskLevel: RiskLevel;
+  recommendedAction: RecommendedAction;
+  justification: string;
+  confidence: number;
+  fairnessFlags: string[];
   createdAt: string;
 }
 
