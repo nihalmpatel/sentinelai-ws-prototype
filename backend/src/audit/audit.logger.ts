@@ -12,11 +12,15 @@ export class AuditLogger {
   }
 
   listAll(): AuditEvent[] {
-    return [...this.events];
+    return [...this.events].sort((a, b) =>
+      a.timestamp.localeCompare(b.timestamp)
+    );
   }
 
   listForCase(caseId: number): AuditEvent[] {
-    return this.events.filter((e) => e.caseId === caseId);
+    return this.events
+      .filter((e) => e.caseId === caseId)
+      .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
   }
 }
 
