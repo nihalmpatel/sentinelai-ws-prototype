@@ -44,7 +44,7 @@ This is an operational decision system.
 ## Backend
 
 -   Node.js + TypeScript
--   Express or Fastify only
+-   Express only
 -   Use Zod for AI output validation
 -   In-memory storage only (no database)
 -   No authentication system

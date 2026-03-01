@@ -21,7 +21,7 @@ flowchart TD
 ### Backend
 
 -   **Node.js + TypeScript**
--   **Fastify** (lighter + faster than Express)
+-   **Express**
 -   **Prisma ORM**
 -   **PostgreSQL**
 -   **Redis** (caching, rate limiting, idempotency keys)
