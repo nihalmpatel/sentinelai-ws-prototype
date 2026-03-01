@@ -157,6 +157,40 @@
 
       <sentinel-signal-list [signals]="caseData.riskProfile?.signals"></sentinel-signal-list>
 
+      <!-- Recent transactions -->
+      <div class="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3">
+        <div class="mb-2 flex items-center justify-between">
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-200">
+            Recent transactions
+          </div>
+          <div class="text-[11px] text-slate-500">
+            Concise view of latest activity for this user
+          </div>
+        </div>
+
+        <div *ngIf="!caseData.recentTransactions || caseData.recentTransactions.length === 0"
+          class="text-xs text-slate-500">
+          No recent transactions attached to this case in the demo dataset.
+        </div>
+
+        <ul *ngIf="caseData.recentTransactions?.length" class="space-y-2">
+          <li *ngFor="let tx of caseData.recentTransactions"
+            class="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-xs">
+            <div>
+              <div class="font-medium text-slate-100">
+                {{ tx.amount | number: '1.2-2' }} {{ tx.currency }}
+              </div>
+              <div class="mt-0.5 text-[11px] text-slate-400">
+                Transaction #{{ tx.id }}
+              </div>
+            </div>
+            <div class="text-[11px] text-slate-500">
+              {{ tx.timestamp | date: 'medium' }}
+            </div>
+          </li>
+        </ul>
+      </div>
+
       <!-- Human reviews list -->
       <div class="rounded-xl border border-slate-700 bg-slate-900 px-4 py-3">
         <div class="mb-2 flex items-center justify-between">

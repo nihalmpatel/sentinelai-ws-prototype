@@ -5,6 +5,7 @@ import { evaluateCaseWithAi } from "../engines/ai.engine";
 import { applyGuardrailsToDecision } from "./guardrails";
 import { CaseStateMachine } from "./state.machine";
 import { mockCases } from "../data/historical.cases";
+import { mockTransactions } from "../data/mock.transactions";
 import { LOW_RISK_APPROVAL_THRESHOLD } from "./policy.config";
 import { auditLogger } from "../audit/audit.logger";
 import {
@@ -49,6 +50,15 @@ export class CaseManager {
   async evaluate(caseInput: Case): Promise<DecisionDraft> {
     const riskProfile = computeRiskSignals(caseInput);
     caseInput.riskProfile = riskProfile;
+
+    // Attach a small window of recent transactions for the related user (if any).
+    const recent = mockTransactions
+      .filter((t) => t.userId === caseInput.userId)
+      .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
+      .slice(-5);
+    if (recent.length > 0) {
+      caseInput.recentTransactions = recent;
+    }
     const aiDecision = await evaluateCaseWithAi(caseInput);
     const guardedDecision = applyGuardrailsToDecision(aiDecision, riskProfile);
 

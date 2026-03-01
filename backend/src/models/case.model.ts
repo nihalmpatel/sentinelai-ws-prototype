@@ -1,6 +1,7 @@
 import { RiskProfile } from "./risk.model";
 import { DecisionDraft } from "./decision.model";
 import { HumanReview } from "./human-review.model";
+import type { MockTransaction } from "../data/mock.transactions";
 
 export interface Case {
   id: number;
@@ -21,5 +22,9 @@ export interface Case {
   riskProfile?: RiskProfile;
   aiDecisions: DecisionDraft[];
   humanReviews: HumanReview[];
+  /**
+   * Optional, recent transactions for the related user (in-memory only).
+   */
+  recentTransactions?: MockTransaction[];
 }
 

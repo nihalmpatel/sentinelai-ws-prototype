@@ -37,7 +37,23 @@ export const mockCases: Case[] = [
         createdAt: new Date().toISOString()
       }
     ],
-    humanReviews: []
+    humanReviews: [],
+    recentTransactions: [
+      {
+        id: 1001,
+        userId: 1,
+        amount: 75,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString()
+      },
+      {
+        id: 1002,
+        userId: 1,
+        amount: 120,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
+      }
+    ]
   },
   {
     id: 2,
@@ -109,6 +125,22 @@ export const mockCases: Case[] = [
         rationale: "Approved AI recommendation for low-risk case.",
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 4).toISOString()
       } satisfies HumanReview
+    ],
+    recentTransactions: [
+      {
+        id: 2001,
+        userId: 1,
+        amount: 60,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 8).toISOString()
+      },
+      {
+        id: 2002,
+        userId: 1,
+        amount: 48,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString()
+      }
     ]
   },
   {
@@ -145,7 +177,23 @@ export const mockCases: Case[] = [
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6 + 1000 * 60 * 9).toISOString()
       }
     ],
-    humanReviews: []
+    humanReviews: [],
+    recentTransactions: [
+      {
+        id: 3001,
+        userId: 4,
+        amount: 510,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString()
+      },
+      {
+        id: 3002,
+        userId: 4,
+        amount: 650,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString()
+      }
+    ]
   },
   {
     id: 6,
@@ -186,7 +234,23 @@ export const mockCases: Case[] = [
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 15).toISOString()
       }
     ],
-    humanReviews: []
+    humanReviews: [],
+    recentTransactions: [
+      {
+        id: 4001,
+        userId: 5,
+        amount: 900,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString()
+      },
+      {
+        id: 4002,
+        userId: 5,
+        amount: 1100,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 10).toISOString()
+      }
+    ]
   },
   {
     id: 7,
@@ -268,7 +332,23 @@ export const mockCases: Case[] = [
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 31).toISOString()
       }
     ],
-    humanReviews: []
+    humanReviews: [],
+    recentTransactions: [
+      {
+        id: 5001,
+        userId: 7,
+        amount: 4800,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString()
+      },
+      {
+        id: 5002,
+        userId: 7,
+        amount: 4900,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 5).toISOString()
+      }
+    ]
   },
   {
     id: 9,
@@ -314,7 +394,23 @@ export const mockCases: Case[] = [
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 44).toISOString()
       }
     ],
-    humanReviews: []
+    humanReviews: [],
+    recentTransactions: [
+      {
+        id: 6001,
+        userId: 8,
+        amount: 5200,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString()
+      },
+      {
+        id: 6002,
+        userId: 8,
+        amount: 5300,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 3).toISOString()
+      }
+    ]
   },
   {
     id: 10,
@@ -365,6 +461,22 @@ export const mockCases: Case[] = [
         rationale:
           "Human override: verified user travel + merchant verification. Monitor with enhanced scrutiny despite elevated aggregate risk.",
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 58).toISOString()
+      }
+    ],
+    recentTransactions: [
+      {
+        id: 7001,
+        userId: 9,
+        amount: 2500,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
+      },
+      {
+        id: 7002,
+        userId: 9,
+        amount: 2600,
+        currency: "USD",
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 30).toISOString()
       }
     ]
   }
