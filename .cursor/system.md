@@ -1,0 +1,5 @@
+-   This project is an AI-native compliance decision engine.
+-   AI drafts first-order regulatory decisions.
+-   Humans approve irreversible actions.
+-   Structured JSON output required.
+-   No permanent account closure by AI.
