@@ -1,14 +1,3 @@
-Perfect. This needs to be **minimal, intentional, and aligned with the architecture thesis**.
-
-We are optimizing for:
-
--   1-day build
--   Clear AI boundary
--   Clean separation of responsibility
--   Zero overengineering
-
----
-
 # 🧠 Sentinel — Lean Folder Structure Blueprint
 
 We’ll split into two top-level folders:
