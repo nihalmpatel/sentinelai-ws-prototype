@@ -4,6 +4,7 @@ import { map, Observable } from 'rxjs';
 import type { Case } from '../models/case.model';
 import type { RiskProfile } from '../models/risk.model';
 import type { Decision } from '../models/decision.model';
+import { environment } from '../../../environments/environment';
 
 export interface EvaluateResponse {
   caseId: number;
@@ -13,10 +14,10 @@ export interface EvaluateResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ComplianceService {
-  private readonly baseUrl = '/api';
+  private readonly baseUrl = environment.apiUrl;
 
   constructor(private readonly http: HttpClient) {}
 
@@ -36,7 +37,7 @@ export class ComplianceService {
       amount: 1500,
       currency: 'USD',
       merchant: 'Demo Electronics',
-      location: 'Online'
+      location: 'Online',
     };
 
     return this.http.post<EvaluateResponse>(
@@ -45,4 +46,3 @@ export class ComplianceService {
     );
   }
 }
-
