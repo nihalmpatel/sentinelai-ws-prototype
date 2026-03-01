@@ -51,10 +51,24 @@
                   User {{ c.userId }}
                 </span>
               </div>
-              <div class="mt-1 text-xs text-slate-400">
-                Status:
-                <span class="uppercase tracking-wide">
-                  {{ c.status }}
+              <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                <span>
+                  Status:
+                  <span class="uppercase tracking-wide">
+                    {{ c.status }}
+                  </span>
+                </span>
+                <span
+                  class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium"
+                  [ngClass]="{
+                    'border-emerald-500/60 bg-emerald-500/10 text-emerald-200': getDecisionLabel(c) === 'APPROVED',
+                    'border-rose-500/60 bg-rose-500/10 text-rose-200': getDecisionLabel(c) === 'OVERRIDDEN',
+                    'border-slate-700 bg-slate-800/60 text-slate-300': getDecisionLabel(c) === 'PENDING'
+                  }"
+                >
+                  <span *ngIf="getDecisionLabel(c) === 'APPROVED'">Approved (AI-aligned)</span>
+                  <span *ngIf="getDecisionLabel(c) === 'OVERRIDDEN'">Overridden</span>
+                  <span *ngIf="getDecisionLabel(c) === 'PENDING'">Pending human decision</span>
                 </span>
               </div>
             </div>

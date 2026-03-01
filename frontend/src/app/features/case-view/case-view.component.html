@@ -3,10 +3,7 @@
     <div class="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
       <div>
         <div class="flex items-center gap-3">
-          <a
-            class="text-sm text-slate-300 hover:text-slate-50"
-            routerLink="/"
-          >
+          <a class="text-sm text-slate-300 hover:text-slate-50" routerLink="/">
             ← Dashboard
           </a>
           <span class="text-xs text-slate-600">/</span>
@@ -18,19 +15,17 @@
           AI drafts are read-only; humans approve or override irreversible actions.
         </p>
       </div>
-      <button
-        type="button"
+      <button type="button"
         class="rounded-md border border-slate-700 bg-slate-950/40 px-4 py-2 text-sm text-slate-100 hover:bg-slate-800/60 disabled:cursor-not-allowed disabled:opacity-60"
-        (click)="load()"
-        [disabled]="isLoading"
-      >
+        (click)="load()" [disabled]="isLoading">
         Refresh
       </button>
     </div>
   </header>
 
   <main class="mx-auto max-w-6xl px-6 py-6 space-y-4">
-    <div *ngIf="errorMessage" class="rounded-md border border-rose-500/50 bg-rose-950/40 px-3 py-2 text-xs text-rose-200">
+    <div *ngIf="errorMessage"
+      class="rounded-md border border-rose-500/50 bg-rose-950/40 px-3 py-2 text-xs text-rose-200">
       {{ errorMessage }}
     </div>
 
@@ -45,7 +40,8 @@
             Case #{{ caseData.id }} · User {{ caseData.userId }}
           </div>
           <div class="mt-1 text-xs text-slate-400">
-            Created {{ caseData.createdAt | date: 'short' }} · Updated {{ caseData.updatedAt | date: 'short' }} · Status
+            Created {{ caseData.createdAt | date: 'medium' }} · Updated {{ caseData.updatedAt | date: 'medium' }} ·
+            Status
             <span class="uppercase tracking-wide">{{ caseData.status }}</span>
           </div>
         </div>
@@ -61,7 +57,8 @@
       <div class="rounded-xl border border-indigo-500/70 bg-indigo-950/40 px-4 py-3 shadow-sm">
         <div class="mb-2 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <span class="inline-flex items-center rounded-full bg-indigo-500/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-indigo-100">
+            <span
+              class="inline-flex items-center rounded-full bg-indigo-500/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-indigo-100">
               AI draft
             </span>
             <span class="text-xs text-indigo-100/80">
@@ -118,8 +115,8 @@
         </div>
       </div>
 
-      <!-- Human controls -->
-      <div class="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3">
+      <!-- Human controls + outcome vs AI -->
+      <div class="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 space-y-2">
         <div class="flex items-center justify-between gap-3">
           <div>
             <div class="text-xs font-semibold uppercase tracking-wide text-slate-200">
@@ -131,25 +128,28 @@
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <button
-              type="button"
+            <button type="button"
               class="rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
-              (click)="approveAi()"
-              [disabled]="isSubmitting || !latestAiDraft || !canApproveAi"
-            >
+              (click)="approveAi()" [disabled]="isSubmitting || !latestAiDraft || !canApproveAi">
               Approve AI recommendation
             </button>
-            <button
-              type="button"
+            <button type="button"
               class="rounded-md border border-rose-500/50 bg-rose-950/30 px-4 py-2 text-sm font-semibold text-rose-100 hover:bg-rose-900/40 disabled:cursor-not-allowed disabled:opacity-60"
-              (click)="openOverride()"
-              [disabled]="isSubmitting || !latestAiDraft"
-            >
+              (click)="openOverride()" [disabled]="isSubmitting || !latestAiDraft">
               Override
             </button>
           </div>
         </div>
-        <p *ngIf="latestAiDraft && !canApproveAi" class="mt-2 text-[11px] text-amber-200/80">
+        <div class="flex flex-wrap items-center gap-2 text-[11px]">
+          <span class="inline-flex items-center rounded-full border px-2 py-0.5 font-medium" [ngClass]="{
+              'border-emerald-500/60 bg-emerald-500/10 text-emerald-200': finalOutcomeSummary.kind === 'APPROVED',
+              'border-rose-500/60 bg-rose-500/10 text-rose-200': finalOutcomeSummary.kind === 'OVERRIDDEN',
+              'border-slate-700 bg-slate-800/60 text-slate-300': finalOutcomeSummary.kind === 'PENDING'
+            }">
+            {{ finalOutcomeSummary.label }}
+          </span>
+        </div>
+        <p *ngIf="latestAiDraft && !canApproveAi" class="text-[11px] text-amber-200/80">
           Approve AI recommendation is only available for low-risk cases (risk score below or equal to
           {{ lowRiskApprovalThreshold | number: '1.2-2' }}). Use Override for higher-risk scenarios.
         </p>
@@ -173,10 +173,8 @@
         </div>
 
         <ul *ngIf="caseData.humanReviews.length > 0" class="space-y-2">
-          <li
-            *ngFor="let r of caseData.humanReviews"
-            class="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2"
-          >
+          <li *ngFor="let r of caseData.humanReviews"
+            class="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2">
             <div class="flex items-center justify-between gap-3">
               <div class="text-xs text-slate-200">
                 <span class="font-semibold">{{ r.type }}</span>
@@ -186,7 +184,7 @@
                   · {{ r.irreversibleAction }}
                 </span>
               </div>
-              <div class="text-[11px] text-slate-500">{{ r.createdAt | date: 'short' }}</div>
+              <div class="text-[11px] text-slate-500">{{ r.createdAt | date: 'medium' }}</div>
             </div>
             <div class="mt-1 text-sm text-slate-100">{{ r.rationale }}</div>
           </li>
@@ -197,11 +195,6 @@
     </div>
   </main>
 
-  <sentinel-override-modal
-    [open]="isOverrideOpen"
-    [aiRecommendedAction]="latestAiDraft?.recommendedAction"
-    (cancel)="closeOverride()"
-    (submit)="submitOverride($event)"
-  ></sentinel-override-modal>
+  <sentinel-override-modal [open]="isOverrideOpen" [aiRecommendedAction]="latestAiDraft?.recommendedAction"
+    (cancel)="closeOverride()" (submit)="submitOverride($event)"></sentinel-override-modal>
 </div>
-

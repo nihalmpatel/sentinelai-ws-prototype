@@ -18,12 +18,9 @@
           AI drafts, humans supervise – demo dashboard
         </p>
       </div>
-      <button
-        type="button"
+      <button type="button"
         class="inline-flex items-center gap-2 rounded-md bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950 shadow-sm hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
-        (click)="evaluateSample()"
-        [disabled]="isEvaluating"
-      >
+        (click)="evaluateSample()" [disabled]="isEvaluating">
         <span *ngIf="!isEvaluating">Evaluate sample transaction</span>
         <span *ngIf="isEvaluating">Evaluating…</span>
       </button>
@@ -36,9 +33,7 @@
         Cases
       </h2>
 
-      <div
-        class="rounded-xl border border-slate-800 bg-slate-900/60 shadow-sm overflow-hidden"
-      >
+      <div class="rounded-xl border border-slate-800 bg-slate-900/60 shadow-sm overflow-hidden">
         <div class="border-b border-slate-800 px-4 py-2 text-xs text-slate-400">
           Active & recent cases
         </div>
@@ -49,12 +44,9 @@
           No cases yet. Use “Evaluate sample transaction” to create one.
         </div>
         <ul *ngIf="!isLoadingCases && cases.length > 0" class="divide-y divide-slate-800">
-          <li
-            *ngFor="let c of cases"
-            (click)="selectCase(c)"
+          <li *ngFor="let c of cases" (click)="selectCase(c)"
             class="flex cursor-pointer items-center justify-between px-4 py-3 text-sm hover:bg-slate-800/60"
-            [ngClass]="{ 'bg-slate-800/80': selectedCase?.id === c.id }"
-          >
+            [ngClass]="{ 'bg-slate-800/80': selectedCase?.id === c.id }">
             <div>
               <div class="flex items-center gap-2">
                 <span class="font-medium text-slate-50">Case #{{ c.id }}</span>
@@ -70,25 +62,24 @@
               </div>
             </div>
             <div class="flex flex-col items-end gap-1">
-              <span
-                class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium"
-                [ngClass]="getRiskBadgeClassForCase(c)"
-              >
+              <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium"
+                [ngClass]="getRiskBadgeClassForCase(c)">
                 {{
-                  getRiskLevelLabelForCase(c)
-                    ? (getRiskLevelLabelForCase(c) || 'UNKNOWN')
-                    : 'NO RISK YET'
+                getRiskLevelLabelForCase(c)
+                ? (getRiskLevelLabelForCase(c) || 'UNKNOWN')
+                : 'NO RISK YET'
                 }}
               </span>
               <span class="text-[11px] text-slate-500">
-                {{ c.createdAt | date: 'short' }}
+                {{ c.createdAt | date: 'medium' }}
               </span>
             </div>
           </li>
         </ul>
       </div>
 
-      <div *ngIf="errorMessage" class="rounded-md border border-rose-500/50 bg-rose-950/40 px-3 py-2 text-xs text-rose-200">
+      <div *ngIf="errorMessage"
+        class="rounded-md border border-rose-500/50 bg-rose-950/40 px-3 py-2 text-xs text-rose-200">
         {{ errorMessage }}
       </div>
     </section>
@@ -98,37 +89,31 @@
         Case detail
       </h2>
 
-      <div
-        *ngIf="!selectedCase"
-        class="rounded-xl border border-dashed border-slate-800 bg-slate-900/40 px-4 py-6 text-sm text-slate-400"
-      >
+      <div *ngIf="!selectedCase"
+        class="rounded-xl border border-dashed border-slate-800 bg-slate-900/40 px-4 py-6 text-sm text-slate-400">
         Select a case from the list to inspect AI recommendations.
       </div>
 
       <div *ngIf="selectedCase" class="space-y-4">
-        <div
-          class="rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 flex items-center justify-between"
-        >
+        <div class="rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 flex items-center justify-between">
           <div>
             <div class="text-sm font-medium text-slate-50">
               Case #{{ selectedCase.id }} · User {{ selectedCase.userId }}
             </div>
             <div class="mt-1 text-xs text-slate-400">
-              Created {{ selectedCase.createdAt | date: 'short' }} · Status
+              Created {{ selectedCase.createdAt | date: 'medium' }} · Status
               <span class="uppercase tracking-wide">
                 {{ selectedCase.status }}
               </span>
             </div>
           </div>
           <div class="flex flex-col items-end gap-1">
-            <span
-              class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium"
-              [ngClass]="getRiskBadgeClassForCase(selectedCase)"
-            >
+            <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium"
+              [ngClass]="getRiskBadgeClassForCase(selectedCase)">
               {{
-                getRiskLevelLabelForCase(selectedCase)
-                  ? 'RISK: ' + getRiskLevelLabelForCase(selectedCase)
-                  : 'RISK: UNKNOWN'
+              getRiskLevelLabelForCase(selectedCase)
+              ? 'RISK: ' + getRiskLevelLabelForCase(selectedCase)
+              : 'RISK: UNKNOWN'
               }}
             </span>
             <span class="text-[11px] text-slate-500">
@@ -139,14 +124,11 @@
         </div>
 
         <!-- AI-generated narrative & recommendation -->
-        <div
-          class="rounded-xl border border-indigo-500/70 bg-indigo-950/40 px-4 py-3 shadow-sm"
-        >
+        <div class="rounded-xl border border-indigo-500/70 bg-indigo-950/40 px-4 py-3 shadow-sm">
           <div class="mb-2 flex items-center justify-between">
             <div class="flex items-center gap-2">
               <span
-                class="inline-flex items-center rounded-full bg-indigo-500/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-indigo-100"
-              >
+                class="inline-flex items-center rounded-full bg-indigo-500/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-indigo-100">
                 AI draft
               </span>
               <span class="text-xs text-indigo-100/80">
@@ -179,9 +161,9 @@
                 </div>
                 <div class="mt-1 text-sm font-medium text-indigo-50">
                   {{
-                    selectedCase?.riskProfile?.score != null
-                      ? (selectedCase?.riskProfile?.score | number: '1.2-2')
-                      : 'N/A'
+                  selectedCase?.riskProfile?.score != null
+                  ? (selectedCase?.riskProfile?.score | number: '1.2-2')
+                  : 'N/A'
                   }}
                 </div>
               </div>
@@ -190,9 +172,7 @@
         </div>
 
         <!-- Risk signals -->
-        <div
-          class="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3"
-        >
+        <div class="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3">
           <div class="mb-2 flex items-center justify-between">
             <div class="text-xs font-semibold uppercase tracking-wide text-slate-300">
               Risk signals
@@ -202,22 +182,15 @@
             </div>
           </div>
 
-          <div
-            *ngIf="!selectedCase.riskProfile || selectedCase.riskProfile.signals.length === 0"
-            class="text-xs text-slate-500"
-          >
+          <div *ngIf="!selectedCase.riskProfile || selectedCase.riskProfile.signals.length === 0"
+            class="text-xs text-slate-500">
             No explicit risk signals attached yet; this may be a low-risk or
             unevaluated case.
           </div>
 
-          <ul
-            *ngIf="selectedCase.riskProfile && selectedCase.riskProfile.signals.length > 0"
-            class="space-y-2"
-          >
-            <li
-              *ngFor="let s of selectedCase.riskProfile.signals"
-              class="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm"
-            >
+          <ul *ngIf="selectedCase.riskProfile && selectedCase.riskProfile.signals.length > 0" class="space-y-2">
+            <li *ngFor="let s of selectedCase.riskProfile.signals"
+              class="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm">
               <div class="flex items-center gap-2">
                 <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
                 <span>{{ s.label }}</span>
@@ -230,9 +203,7 @@
         </div>
 
         <!-- Human-entered notes placeholder (visually distinct from AI) -->
-        <div
-          class="rounded-xl border border-slate-700 bg-slate-900 px-4 py-3"
-        >
+        <div class="rounded-xl border border-slate-700 bg-slate-900 px-4 py-3">
           <div class="mb-1 flex items-center justify-between">
             <div class="text-xs font-semibold uppercase tracking-wide text-slate-200">
               Human review notes

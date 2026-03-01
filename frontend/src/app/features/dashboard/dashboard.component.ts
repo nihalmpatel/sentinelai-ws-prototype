@@ -26,6 +26,12 @@ export class DashboardComponent implements OnInit {
     this.loadCases();
   }
 
+  getDecisionLabel(c: Case): 'APPROVED' | 'OVERRIDDEN' | 'PENDING' {
+    if (c.status === 'APPROVED') return 'APPROVED';
+    if (c.status === 'OVERRIDDEN') return 'OVERRIDDEN';
+    return 'PENDING';
+  }
+
   loadCases(): void {
     this.isLoadingCases = true;
     this.errorMessage = null;

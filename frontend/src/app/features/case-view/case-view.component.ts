@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import type { Case } from '../../core/models/case.model';
 import type { DecisionDraft } from '../../core/models/decision.model';
 import type { AuditEvent } from '../../core/models/audit.model';
+import type { HumanReview } from '../../core/models/review.model';
 import { ComplianceService } from '../../core/services/compliance.service';
 import { AuditService } from '../../core/services/audit.service';
 import { RiskBadgeComponent } from '../../shared/risk-badge.component';
@@ -86,6 +87,42 @@ export class CaseViewComponent implements OnInit, OnDestroy {
       return false;
     }
     return score <= this.lowRiskApprovalThreshold;
+  }
+
+  get latestHumanReview(): HumanReview | null {
+    return this.caseData?.humanReviews?.length ? this.caseData.humanReviews.at(-1)! : null;
+  }
+
+  get finalOutcomeSummary():
+    | { kind: 'APPROVED'; label: string }
+    | { kind: 'OVERRIDDEN'; label: string }
+    | { kind: 'PENDING'; label: string } {
+    const latestReview = this.latestHumanReview;
+    const ai = this.latestAiDraft;
+
+    if (!latestReview || !ai) {
+      return { kind: 'PENDING', label: 'No final human decision yet.' };
+    }
+
+    if (latestReview.type === 'APPROVE_AI') {
+      return {
+        kind: 'APPROVED',
+        label: 'Final outcome matches the AI recommendation (approved).',
+      };
+    }
+
+    const diverges = latestReview.finalAction !== ai.recommendedAction;
+    if (diverges) {
+      return {
+        kind: 'OVERRIDDEN',
+        label: 'Final outcome overrides the AI recommendation.',
+      };
+    }
+
+    return {
+      kind: 'OVERRIDDEN',
+      label: 'Marked as override; final action equals the AI recommendation.',
+    };
   }
 
   load(): void {
