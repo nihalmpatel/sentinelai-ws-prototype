@@ -14,6 +14,7 @@ import {
   OverrideModalComponent,
   OverrideSubmission,
 } from '../override-modal/override-modal.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'sentinel-case-view',
@@ -42,6 +43,8 @@ export class CaseViewComponent implements OnInit, OnDestroy {
 
   private readonly sub = new Subscription();
 
+  readonly lowRiskApprovalThreshold = environment.lowRiskApprovalThreshold ?? 0.5;
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly compliance: ComplianceService,
@@ -65,6 +68,24 @@ export class CaseViewComponent implements OnInit, OnDestroy {
 
   get latestAiDraft(): DecisionDraft | null {
     return this.caseData?.aiDecisions?.length ? this.caseData.aiDecisions.at(-1)! : null;
+  }
+
+  get canApproveAi(): boolean {
+    if (!this.caseData || !this.latestAiDraft) {
+      return false;
+    }
+    if (
+      this.caseData.status === 'APPROVED' ||
+      this.caseData.status === 'OVERRIDDEN' ||
+      this.caseData.status === 'CLOSED'
+    ) {
+      return false;
+    }
+    const score = this.caseData.riskProfile?.score;
+    if (typeof score !== 'number') {
+      return false;
+    }
+    return score <= this.lowRiskApprovalThreshold;
   }
 
   load(): void {

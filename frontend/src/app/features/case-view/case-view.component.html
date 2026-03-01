@@ -126,7 +126,8 @@
               Human review
             </div>
             <div class="mt-1 text-[11px] text-slate-500">
-              Approve AI or override with a final decision + rationale. Irreversible actions require confirmation.
+              Approve AI (for low-risk cases) or override with a final decision + rationale. Irreversible actions
+              require confirmation.
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -134,7 +135,7 @@
               type="button"
               class="rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
               (click)="approveAi()"
-              [disabled]="isSubmitting || !latestAiDraft"
+              [disabled]="isSubmitting || !latestAiDraft || !canApproveAi"
             >
               Approve AI recommendation
             </button>
@@ -148,6 +149,10 @@
             </button>
           </div>
         </div>
+        <p *ngIf="latestAiDraft && !canApproveAi" class="mt-2 text-[11px] text-amber-200/80">
+          Approve AI recommendation is only available for low-risk cases (risk score below or equal to
+          {{ lowRiskApprovalThreshold | number: '1.2-2' }}). Use Override for higher-risk scenarios.
+        </p>
       </div>
 
       <sentinel-signal-list [signals]="caseData.riskProfile?.signals"></sentinel-signal-list>

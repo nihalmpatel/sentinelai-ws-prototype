@@ -5,6 +5,7 @@ import { evaluateCaseWithAi } from "../engines/ai.engine";
 import { applyGuardrailsToDecision } from "./guardrails";
 import { CaseStateMachine } from "./state.machine";
 import { mockCases } from "../data/historical.cases";
+import { LOW_RISK_APPROVAL_THRESHOLD } from "./policy.config";
 import { auditLogger } from "../audit/audit.logger";
 import {
   HumanReview,
@@ -104,6 +105,10 @@ export class CaseManager {
       throw new Error("Case has no AI draft yet");
     }
 
+    if (found.status === "APPROVED" || found.status === "OVERRIDDEN" || found.status === "CLOSED") {
+      throw new Error("Case already has a final human decision");
+    }
+
     const latestAi = found.aiDecisions.at(-1);
     if (!latestAi) {
       throw new Error("Case has no AI draft yet");
@@ -132,6 +137,44 @@ export class CaseManager {
       }
       if (typeof params.rationale !== "string" || params.rationale.trim().length === 0) {
         throw new Error("Override requires a textual rationale");
+      }
+    }
+
+    if (reviewType === "APPROVE_AI") {
+      const score = found.riskProfile?.score;
+      if (typeof score !== "number") {
+        auditLogger.log({
+          id: `audit-${Date.now()}-low-risk-approval-rejected`,
+          actorType: "HUMAN",
+          actorId: params.reviewerId,
+          action: "LOW_RISK_APPROVAL_REJECTED",
+          caseId: found.id,
+          timestamp: now,
+          metadata: {
+            reason: "Missing risk profile score",
+            threshold: LOW_RISK_APPROVAL_THRESHOLD
+          }
+        });
+        throw new Error("Cannot approve AI recommendation without a risk score");
+      }
+
+      if (score > LOW_RISK_APPROVAL_THRESHOLD) {
+        auditLogger.log({
+          id: `audit-${Date.now()}-low-risk-approval-rejected`,
+          actorType: "HUMAN",
+          actorId: params.reviewerId,
+          action: "LOW_RISK_APPROVAL_REJECTED",
+          caseId: found.id,
+          timestamp: now,
+          metadata: {
+            reason: "Risk score above low-risk approval threshold",
+            score,
+            threshold: LOW_RISK_APPROVAL_THRESHOLD
+          }
+        });
+        throw new Error(
+          "Approve AI recommendation is only available for low-risk cases. Use override instead."
+        );
       }
     }
 
