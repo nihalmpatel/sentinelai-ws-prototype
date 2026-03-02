@@ -6,44 +6,158 @@
           {{ title }}
         </h1>
         <p class="text-sm text-slate-400">
-          AI drafts, humans supervise – demo dashboard
+          AI drafts, humans supervise - demo dashboard
         </p>
       </div>
-      <button
-        type="button"
+      <button type="button"
         class="inline-flex items-center gap-2 rounded-md bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950 shadow-sm hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
-        (click)="evaluateSample()"
-        [disabled]="isEvaluating"
-      >
+        (click)="evaluateSample()" [disabled]="isEvaluating">
         <span *ngIf="!isEvaluating">Evaluate sample transaction</span>
-        <span *ngIf="isEvaluating">Evaluating…</span>
+        <span *ngIf="isEvaluating">Evaluating...</span>
+      </button>
+      <button type="button"
+        class="ml-2 inline-flex items-center gap-2 rounded-md border border-indigo-500/50 bg-indigo-950/30 px-4 py-2 text-sm font-medium text-indigo-200 hover:bg-indigo-900/40"
+        (click)="showSimForm = !showSimForm">
+        {{ showSimForm ? 'Close simulator' : 'Simulate custom' }}
       </button>
     </div>
   </header>
 
+  <!-- Transaction Simulator (US-07) -->
+  <div *ngIf="showSimForm" class="border-b border-slate-800 bg-slate-900/80 backdrop-blur">
+    <div class="mx-auto max-w-6xl px-6 py-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="text-xs font-semibold uppercase tracking-wide text-indigo-200">
+          Transaction Simulator
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button *ngFor="let p of presets" type="button"
+            class="rounded-full border border-slate-700 bg-slate-950/40 px-3 py-1 text-[11px] text-slate-300 hover:bg-slate-800/60"
+            (click)="applyPreset(p)">
+            {{ p.label }}
+          </button>
+        </div>
+      </div>
+      <div class="grid gap-3 md:grid-cols-5">
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">User ID</label>
+          <input type="number"
+            class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-sm text-slate-50"
+            [(ngModel)]="simUserId" min="1" />
+        </div>
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Amount</label>
+          <input type="number"
+            class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-sm text-slate-50"
+            [(ngModel)]="simAmount" min="0" />
+        </div>
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Currency</label>
+          <input type="text"
+            class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-sm text-slate-50"
+            [(ngModel)]="simCurrency" />
+        </div>
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Merchant</label>
+          <input type="text"
+            class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-sm text-slate-50"
+            [(ngModel)]="simMerchant" />
+        </div>
+        <div class="space-y-1">
+          <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Location</label>
+          <input type="text"
+            class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-sm text-slate-50"
+            [(ngModel)]="simLocation" />
+        </div>
+      </div>
+      <button type="button"
+        class="rounded-md bg-indigo-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
+        (click)="evaluateCustom()" [disabled]="isEvaluating">
+        <span *ngIf="!isEvaluating">Evaluate this transaction</span>
+        <span *ngIf="isEvaluating">Evaluating...</span>
+      </button>
+    </div>
+  </div>
+
   <main class="mx-auto max-w-6xl px-6 py-6 space-y-4">
+
+    <!-- Filters & sort (FR-FE-02) -->
+    <section class="flex flex-wrap items-end gap-3">
+      <div class="space-y-1">
+        <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Status</label>
+        <select class="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-50"
+          [(ngModel)]="filterStatus">
+          <option value="">All</option>
+          <option value="NEW">NEW</option>
+          <option value="AI_DRAFTED">AI_DRAFTED</option>
+          <option value="UNDER_REVIEW">UNDER_REVIEW</option>
+          <option value="APPROVED">APPROVED</option>
+          <option value="OVERRIDDEN">OVERRIDDEN</option>
+          <option value="CLOSED">CLOSED</option>
+        </select>
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Risk level</label>
+        <select class="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-50"
+          [(ngModel)]="filterRisk">
+          <option value="">All</option>
+          <option value="LOW">Low</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="HIGH">High</option>
+        </select>
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Search</label>
+        <input type="text"
+          class="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-50 placeholder-slate-500"
+          placeholder="Case ID, User ID..." [(ngModel)]="filterSearchTerm" />
+      </div>
+
+      <button type="button"
+        class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800/60"
+        (click)="clearFilters()">
+        Clear filters
+      </button>
+
+      <div class="ml-auto flex items-center gap-2">
+        <span class="text-[11px] text-slate-500 uppercase tracking-wide">Sort by</span>
+        <button *ngFor="let col of [
+            { field: 'id', label: 'ID' },
+            { field: 'status', label: 'Status' },
+            { field: 'risk', label: 'Risk' },
+            { field: 'updatedAt', label: 'Updated' }
+          ]" type="button" class="rounded-md border px-2 py-1 text-xs" [ngClass]="{
+            'border-indigo-500 bg-indigo-950/40 text-indigo-200': sortField === col.field,
+            'border-slate-700 bg-slate-950/40 text-slate-400 hover:bg-slate-800/60': sortField !== col.field
+          }" (click)="toggleSort($any(col.field))">
+          {{ col.label }}
+          <span *ngIf="sortField === col.field">{{ sortDirection === 'asc' ? '&#8593;' : '&#8595;' }}</span>
+        </button>
+      </div>
+    </section>
+
     <section class="space-y-3">
       <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">
         Cases
+        <span class="text-slate-500 font-normal">({{ filteredCases.length }} of {{ cases.length }})</span>
       </h2>
 
-      <div
-        class="rounded-xl border border-slate-800 bg-slate-900/60 shadow-sm overflow-hidden"
-      >
+      <div class="rounded-xl border border-slate-800 bg-slate-900/60 shadow-sm overflow-hidden">
         <div class="border-b border-slate-800 px-4 py-2 text-xs text-slate-400">
-          Active & recent cases
+          Active &amp; recent cases
         </div>
         <div *ngIf="isLoadingCases" class="p-4 text-sm text-slate-400">
-          Loading cases…
+          Loading cases...
         </div>
-        <div *ngIf="!isLoadingCases && cases.length === 0" class="p-4 text-sm text-slate-400">
-          No cases yet. Use “Evaluate sample transaction” to create one.
+        <div *ngIf="!isLoadingCases && filteredCases.length === 0" class="p-4 text-sm text-slate-400">
+          <span *ngIf="cases.length === 0">No cases yet. Use "Evaluate sample transaction" to create one.</span>
+          <span *ngIf="cases.length > 0">No cases match the current filters.</span>
         </div>
-        <ul *ngIf="!isLoadingCases && cases.length > 0" class="divide-y divide-slate-800">
-          <li
-            *ngFor="let c of cases"
-            class="flex items-center justify-between px-4 py-3 text-sm hover:bg-slate-800/60"
-          >
+        <ul *ngIf="!isLoadingCases && filteredCases.length > 0" class="divide-y divide-slate-800">
+          <li *ngFor="let c of filteredCases"
+            class="flex items-center justify-between px-4 py-3 text-sm hover:bg-slate-800/60">
             <div>
               <div class="flex items-center gap-2">
                 <span class="font-medium text-slate-50">Case #{{ c.id }}</span>
@@ -54,18 +168,14 @@
               <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
                 <span>
                   Status:
-                  <span class="uppercase tracking-wide">
-                    {{ c.status }}
-                  </span>
+                  <span class="uppercase tracking-wide">{{ c.status }}</span>
                 </span>
-                <span
-                  class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium"
+                <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium"
                   [ngClass]="{
                     'border-emerald-500/60 bg-emerald-500/10 text-emerald-200': getDecisionLabel(c) === 'APPROVED',
                     'border-rose-500/60 bg-rose-500/10 text-rose-200': getDecisionLabel(c) === 'OVERRIDDEN',
                     'border-slate-700 bg-slate-800/60 text-slate-300': getDecisionLabel(c) === 'PENDING'
-                  }"
-                >
+                  }">
                   <span *ngIf="getDecisionLabel(c) === 'APPROVED'">Approved (AI-aligned)</span>
                   <span *ngIf="getDecisionLabel(c) === 'OVERRIDDEN'">Overridden</span>
                   <span *ngIf="getDecisionLabel(c) === 'PENDING'">Pending human decision</span>
@@ -74,10 +184,8 @@
             </div>
             <div class="flex items-center gap-3">
               <sentinel-risk-badge [score]="c.riskProfile?.score"></sentinel-risk-badge>
-              <a
-                class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-800/60"
-                [routerLink]="['/cases', c.id]"
-              >
+              <a class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-800/60"
+                [routerLink]="['/cases', c.id]">
                 Open
               </a>
             </div>
@@ -85,10 +193,40 @@
         </ul>
       </div>
 
-      <div *ngIf="errorMessage" class="rounded-md border border-rose-500/50 bg-rose-950/40 px-3 py-2 text-xs text-rose-200">
+      <div *ngIf="errorMessage"
+        class="rounded-md border border-rose-500/50 bg-rose-950/40 px-3 py-2 text-xs text-rose-200">
         {{ errorMessage }}
+      </div>
+
+      <!-- Pagination (API-02) -->
+      <div *ngIf="pagination.totalPages > 1"
+        class="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2">
+        <div class="text-xs text-slate-400">
+          Page {{ pagination.page }} of {{ pagination.totalPages }} ({{ pagination.total }} total cases)
+        </div>
+        <div class="flex items-center gap-1">
+          <button type="button"
+            class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1 text-xs text-slate-300 hover:bg-slate-800/60 disabled:opacity-40 disabled:cursor-not-allowed"
+            (click)="goToPage(1)" [disabled]="pagination.page === 1">
+            First
+          </button>
+          <button type="button"
+            class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1 text-xs text-slate-300 hover:bg-slate-800/60 disabled:opacity-40 disabled:cursor-not-allowed"
+            (click)="goToPage(pagination.page - 1)" [disabled]="pagination.page === 1">
+            Prev
+          </button>
+          <button type="button"
+            class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1 text-xs text-slate-300 hover:bg-slate-800/60 disabled:opacity-40 disabled:cursor-not-allowed"
+            (click)="goToPage(pagination.page + 1)" [disabled]="pagination.page >= pagination.totalPages">
+            Next
+          </button>
+          <button type="button"
+            class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1 text-xs text-slate-300 hover:bg-slate-800/60 disabled:opacity-40 disabled:cursor-not-allowed"
+            (click)="goToPage(pagination.totalPages)" [disabled]="pagination.page >= pagination.totalPages">
+            Last
+          </button>
+        </div>
       </div>
     </section>
   </main>
 </div>
-

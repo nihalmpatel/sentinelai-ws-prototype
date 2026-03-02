@@ -11,6 +11,14 @@ export type CaseStatus =
   | 'OVERRIDDEN'
   | 'CLOSED';
 
+export interface SimilarCase {
+  id: number;
+  userId: number;
+  status: CaseStatus;
+  riskScore: number | null;
+  recommendedAction: string | null;
+}
+
 export interface Case {
   id: number;
   userId: number;
@@ -22,4 +30,5 @@ export interface Case {
   aiDecisions: DecisionDraft[];
   humanReviews: HumanReview[];
   recentTransactions?: MockTransaction[];
+  similarCases?: SimilarCase[];
 }

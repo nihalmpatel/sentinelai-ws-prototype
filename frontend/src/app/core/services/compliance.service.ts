@@ -1,11 +1,26 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import type { Case } from '../models/case.model';
 import type { RiskProfile } from '../models/risk.model';
-import type { DecisionDraft, RecommendedAction } from '../models/decision.model';
-import type { HumanReview, IrreversibleAction, ReviewType } from '../models/review.model';
+import type {
+  DecisionDraft,
+  RecommendedAction,
+} from '../models/decision.model';
+import type {
+  HumanReview,
+  IrreversibleAction,
+  ReviewType,
+} from '../models/review.model';
 import { environment } from '../../../environments/environment';
+
+export interface EvaluateRequest {
+  userId: number;
+  amount: number;
+  currency: string;
+  merchant: string;
+  location: string;
+}
 
 export interface EvaluateResponse {
   caseId: number;
@@ -28,6 +43,18 @@ export interface SubmitReviewResponse {
   review: HumanReview;
 }
 
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface CaseListResponse {
+  cases: Case[];
+  pagination: PaginationInfo;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -36,20 +63,23 @@ export class ComplianceService {
 
   constructor(private readonly http: HttpClient) {}
 
-  getCases(): Observable<Case[]> {
-    return this.http
-      .get<{ cases: Case[] }>(`${this.baseUrl}/cases`)
-      .pipe(map((res) => res.cases));
+  getCases(page = 1, limit = 20): Observable<CaseListResponse> {
+    return this.http.get<CaseListResponse>(
+      `${this.baseUrl}/cases?page=${page}&limit=${limit}`,
+    );
   }
 
   getCase(id: number): Observable<Case> {
     return this.http.get<Case>(`${this.baseUrl}/cases/${id}`);
   }
 
-  submitReview(caseId: number, request: SubmitReviewRequest): Observable<SubmitReviewResponse> {
+  submitReview(
+    caseId: number,
+    request: SubmitReviewRequest,
+  ): Observable<SubmitReviewResponse> {
     return this.http.post<SubmitReviewResponse>(
       `${this.baseUrl}/cases/${caseId}/reviews`,
-      request
+      request,
     );
   }
 
@@ -64,7 +94,17 @@ export class ComplianceService {
 
     return this.http.post<EvaluateResponse>(
       `${this.baseUrl}/evaluate`,
-      payload
+      payload,
+    );
+  }
+
+  /**
+   * Evaluate with fully configurable parameters (US-07).
+   */
+  evaluateTransaction(request: EvaluateRequest): Observable<EvaluateResponse> {
+    return this.http.post<EvaluateResponse>(
+      `${this.baseUrl}/evaluate`,
+      request,
     );
   }
 }

@@ -157,6 +157,41 @@
 
       <sentinel-signal-list [signals]="caseData.riskProfile?.signals"></sentinel-signal-list>
 
+      <!-- Similar historical cases (FR-FE-03) -->
+      <div class="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3">
+        <div class="mb-2 flex items-center justify-between">
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-200">
+            Similar historical cases
+          </div>
+          <div class="text-[11px] text-slate-500">
+            Based on risk signal overlap &amp; score proximity
+          </div>
+        </div>
+
+        <div *ngIf="!caseData.similarCases || caseData.similarCases.length === 0" class="text-xs text-slate-500">
+          No similar cases found in the current dataset.
+        </div>
+
+        <ul *ngIf="caseData.similarCases?.length" class="space-y-2">
+          <li *ngFor="let sc of caseData.similarCases"
+            class="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-xs">
+            <div class="flex items-center gap-2">
+              <a class="font-medium text-indigo-300 hover:text-indigo-200" [routerLink]="['/cases', sc.id]">
+                Case #{{ sc.id }}
+              </a>
+              <span class="text-slate-400">User {{ sc.userId }}</span>
+              <span class="uppercase tracking-wide text-slate-500">{{ sc.status }}</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <sentinel-risk-badge [score]="sc.riskScore"></sentinel-risk-badge>
+              <span *ngIf="sc.recommendedAction" class="text-[11px] text-slate-400">
+                {{ sc.recommendedAction }}
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
       <!-- Recent transactions -->
       <div class="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3">
         <div class="mb-2 flex items-center justify-between">
