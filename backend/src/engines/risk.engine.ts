@@ -64,14 +64,14 @@ function detectAmountSpike(amount: number, baseline: UserBaseline): RiskSignal |
 	if (amount >= 5000) {
 		return {
 			id: "high_amount",
-			label: "High transaction amount vs demo baseline",
+			label: "High transaction amount vs baseline",
 			weight: 0.8,
 		};
 	}
 	if (amount >= 1000) {
 		return {
 			id: "moderate_amount",
-			label: "Moderate transaction amount vs demo baseline",
+			label: "Moderate transaction amount vs baseline",
 			weight: 0.4,
 		};
 	}
