@@ -1,66 +1,68 @@
-// Thin wrapper around whichever LLM provider we choose later.
-// For the prototype this is a **smart stub** that derives its response
-// from the structured prompt payload so the demo looks realistic (FR-BE-06).
+// Provider-agnostic LLM client (FR-BE-06).
+// Reads LLM_PROVIDER from env to select the active provider.
+// Falls back to the deterministic stub when no provider is configured.
 
-interface PromptPayload {
-	case?: {context?: Record<string, unknown>};
-	risk?: {score?: number; signals?: {id: string; label: string; weight: number}[]} | null;
-	recentTransactions?: {amount: number}[];
-	[key: string]: unknown;
+import {LlmPrompt, LlmProvider, LlmClientConfig} from "./llm.provider";
+import {StubProvider} from "./providers/stub.provider";
+import {OpenAiProvider} from "./providers/openai.provider";
+import {AnthropicProvider} from "./providers/anthropic.provider";
+
+function resolveConfig(): LlmClientConfig {
+	const raw = (process.env.LLM_PROVIDER ?? "stub").toLowerCase().trim();
+	const provider = (raw === "openai" || raw === "anthropic" ? raw : "stub") as LlmClientConfig["provider"];
+
+	const defaults: Record<string, {model: string; baseUrl: string}> = {
+		openai: {model: "gpt-4o", baseUrl: "https://api.openai.com/v1"},
+		anthropic: {model: "claude-sonnet-4-20250514", baseUrl: "https://api.anthropic.com/v1"},
+		stub: {model: "stub", baseUrl: ""},
+	};
+
+	const d = defaults[provider];
+
+	return {
+		provider,
+		apiKey: process.env.LLM_API_KEY ?? "",
+		model: process.env.LLM_MODEL ?? d.model,
+		baseUrl: process.env.LLM_BASE_URL ?? d.baseUrl,
+		timeoutMs: Number(process.env.LLM_TIMEOUT_MS) || 30_000,
+		maxRetries: Number(process.env.LLM_MAX_RETRIES) || 2,
+	};
+}
+
+function createProvider(config: LlmClientConfig): LlmProvider {
+	switch (config.provider) {
+		case "openai":
+			return new OpenAiProvider(config);
+		case "anthropic":
+			return new AnthropicProvider(config);
+		default:
+			return new StubProvider();
+	}
 }
 
 class LlmClient {
-	async invoke(promptJson: string): Promise<unknown> {
-		// Parse the structured prompt so we can vary the response.
-		let payload: PromptPayload = {};
-		try {
-			payload = JSON.parse(promptJson) as PromptPayload;
-		} catch {
-			// Fall through to default response.
-		}
+	private readonly config: LlmClientConfig;
+	private readonly provider: LlmProvider;
 
-		const score = payload.risk?.score ?? 0;
-		const signals = payload.risk?.signals ?? [];
-		const amount = typeof payload.case?.context?.["amount"] === "number" ? (payload.case.context["amount"] as number) : 0;
+	constructor() {
+		this.config = resolveConfig();
+		this.provider = createProvider(this.config);
+		// eslint-disable-next-line no-console
+		console.log(`[LLM] Provider: ${this.provider.name}, Model: ${this.config.model}`);
+	}
 
-		// ── Derive risk level ──
-		let riskLevel: "LOW" | "MEDIUM" | "HIGH";
-		if (score >= 0.7) riskLevel = "HIGH";
-		else if (score >= 0.35) riskLevel = "MEDIUM";
-		else riskLevel = "LOW";
+	/** Active provider name (e.g. "openai", "anthropic", "stub"). */
+	get providerName(): string {
+		return this.provider.name;
+	}
 
-		// ── Derive recommended action ──
-		let recommendedAction: "NO_ACTION" | "MONITOR" | "TEMP_HOLD" | "ESCALATE";
-		if (score >= 0.8) recommendedAction = "ESCALATE";
-		else if (score >= 0.6) recommendedAction = "TEMP_HOLD";
-		else if (score >= 0.3) recommendedAction = "MONITOR";
-		else recommendedAction = "NO_ACTION";
+	/** Active model identifier (e.g. "gpt-4o", "claude-sonnet-4-20250514"). */
+	get modelName(): string {
+		return this.config.model;
+	}
 
-		// ── Build justification from signals ──
-		const signalSummary = signals.length > 0 ? signals.map((s) => s.label).join("; ") : "No notable risk signals detected";
-
-		const justification =
-			`AI analysis of transaction ($${amount.toLocaleString()}): ${signalSummary}. ` +
-			`Composite risk score ${score.toFixed(2)} → recommending ${recommendedAction}.`;
-
-		// ── Confidence: higher when we have more signals to base the decision on ──
-		const baseConfidence = signals.length > 0 ? 0.6 : 0.45;
-		const signalBoost = Math.min(signals.length * 0.08, 0.3);
-		const confidence = Math.round((baseConfidence + signalBoost) * 100) / 100;
-
-		// ── Fairness flags ──
-		const fairnessFlags: string[] = [];
-		if (signals.length === 0) {
-			fairnessFlags.push("NO_SIGNALS_AVAILABLE");
-		}
-
-		return {
-			riskLevel,
-			recommendedAction,
-			justification,
-			confidence,
-			fairnessFlags,
-		};
+	async invoke(prompt: LlmPrompt): Promise<unknown> {
+		return this.provider.invoke(prompt);
 	}
 }
 

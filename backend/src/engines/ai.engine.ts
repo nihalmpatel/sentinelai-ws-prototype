@@ -10,11 +10,11 @@ import {auditLogger} from "../audit/audit.logger";
  * Logs an audit event when the AI response fails schema validation (FR-BE-08, FR-BE-16).
  */
 export async function evaluateCaseWithAi(inputCase: Case): Promise<DecisionDraft> {
-	const promptJson = buildEvaluationPrompt(inputCase);
+	const prompt = buildEvaluationPrompt(inputCase);
 
 	let raw: unknown;
 	try {
-		raw = await llmClient.invoke(promptJson);
+		raw = await llmClient.invoke(prompt);
 	} catch (err) {
 		// Network / runtime failure – log and fall through to validation with null.
 		auditLogger.log({
