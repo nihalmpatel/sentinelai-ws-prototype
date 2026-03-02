@@ -53,7 +53,7 @@ export class DashboardComponent implements OnInit {
   simLocation = 'Online';
 
   // ── Pagination (API-02) ──
-  pagination: PaginationInfo = { page: 1, limit: 10, total: 0, totalPages: 1 };
+  pagination: PaginationInfo = { page: 1, limit: 20, total: 0, totalPages: 1 };
 
   // ── Customer lookup map ──
   private readonly customerMap: Record<
