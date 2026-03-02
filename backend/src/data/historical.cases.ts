@@ -1,484 +1,521 @@
-import { Case } from "../models/case.model";
-import { DecisionDraft } from "../models/decision.model";
-import { HumanReview } from "../models/human-review.model";
+import {Case} from "../models/case.model";
+import {DecisionDraft} from "../models/decision.model";
+import {HumanReview} from "../models/human-review.model";
 
 export const mockCases: Case[] = [
-  {
-    id: 1,
-    userId: 1,
-    status: "AI_DRAFTED",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    context: {
-      source: "prototype",
-      note: "Seed case for UI demo"
-    },
-    riskProfile: {
-      caseId: 1,
-      score: 0.3,
-      signals: [
-        {
-          id: "seed_low_risk",
-          label: "Demo seed case with low composite risk",
-          weight: 0.3
-        }
-      ]
-    },
-    aiDecisions: [
-      {
-        id: "seed-ai-draft-1",
-        caseId: 1,
-        riskLevel: "LOW",
-        recommendedAction: "MONITOR",
-        justification:
-          "Seed AI draft for demo case; recommend monitoring and human review before any irreversible action.",
-        confidence: 0.62,
-        fairnessFlags: [],
-        createdAt: new Date().toISOString()
-      }
-    ],
-    humanReviews: [],
-    recentTransactions: [
-      {
-        id: 1001,
-        userId: 1,
-        amount: 75,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString()
-      },
-      {
-        id: 1002,
-        userId: 1,
-        amount: 120,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
-      }
-    ]
-  },
-  {
-    id: 2,
-    userId: 2,
-    status: "NEW",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(),
-    context: {
-      source: "prototype",
-      note: "Freshly created case; not yet evaluated"
-    },
-    aiDecisions: [],
-    humanReviews: []
-  },
-  {
-    id: 3,
-    userId: 3,
-    status: "UNDER_REVIEW",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 9).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 9).toISOString(),
-    context: {
-      source: "prototype",
-      note: "In-flight evaluation (signals/decision not persisted yet)"
-    },
-    aiDecisions: [],
-    humanReviews: []
-  },
-  {
-    id: 4,
-    userId: 1,
-    status: "APPROVED",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 4).toISOString(),
-    context: {
-      source: "prototype",
-      note: "Very low risk; stable behavior"
-    },
-    riskProfile: {
-      caseId: 4,
-      score: 0.05,
-      signals: [
-        {
-          id: "baseline_consistent_activity",
-          label: "Transaction amounts consistent with user baseline",
-          weight: 0.15
-        }
-      ]
-    },
-    aiDecisions: [
-      {
-        id: "ai-draft-4",
-        caseId: 4,
-        riskLevel: "LOW",
-        recommendedAction: "NO_ACTION",
-        justification:
-          "Risk signals are minimal and consistent with historical behavior. No action needed; routine monitoring only.",
-        confidence: 0.78,
-        fairnessFlags: [],
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 2).toISOString()
-      } satisfies DecisionDraft
-    ],
-    humanReviews: [
-      {
-        id: "review-4-approve",
-        caseId: 4,
-        reviewerId: "analyst-1",
-        type: "APPROVE_AI",
-        finalAction: "NO_ACTION",
-        rationale: "Approved AI recommendation for low-risk case.",
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 4).toISOString()
-      } satisfies HumanReview
-    ],
-    recentTransactions: [
-      {
-        id: 2001,
-        userId: 1,
-        amount: 60,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 8).toISOString()
-      },
-      {
-        id: 2002,
-        userId: 1,
-        amount: 48,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString()
-      }
-    ]
-  },
-  {
-    id: 5,
-    userId: 4,
-    status: "AI_DRAFTED",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6 + 1000 * 60 * 9).toISOString(),
-    context: {
-      source: "prototype",
-      note: "Borderline low/medium; single weak anomaly"
-    },
-    riskProfile: {
-      caseId: 5,
-      score: 0.29,
-      signals: [
-        {
-          id: "amount_zscore_minor",
-          label: "Minor amount deviation (low z-score)",
-          weight: 0.25
-        }
-      ]
-    },
-    aiDecisions: [
-      {
-        id: "ai-draft-5",
-        caseId: 5,
-        riskLevel: "LOW",
-        recommendedAction: "MONITOR",
-        justification:
-          "A small deviation is present; recommend lightweight review and monitoring before taking any action.",
-        confidence: 0.61,
-        fairnessFlags: [],
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6 + 1000 * 60 * 9).toISOString()
-      }
-    ],
-    humanReviews: [],
-    recentTransactions: [
-      {
-        id: 3001,
-        userId: 4,
-        amount: 510,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString()
-      },
-      {
-        id: 3002,
-        userId: 4,
-        amount: 650,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString()
-      }
-    ]
-  },
-  {
-    id: 6,
-    userId: 5,
-    status: "AI_DRAFTED",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 15).toISOString(),
-    context: {
-      source: "prototype",
-      note: "Medium risk; velocity anomaly + mild geo change"
-    },
-    riskProfile: {
-      caseId: 6,
-      score: 0.51,
-      signals: [
-        {
-          id: "velocity_spike",
-          label: "Velocity anomaly: increased transaction frequency in short window",
-          weight: 0.6
-        },
-        {
-          id: "geo_anomaly_low_conf",
-          label: "Geo anomaly: uncommon location observed (low confidence)",
-          weight: 0.35
-        }
-      ]
-    },
-    aiDecisions: [
-      {
-        id: "ai-draft-6",
-        caseId: 6,
-        riskLevel: "MEDIUM",
-        recommendedAction: "TEMP_HOLD",
-        justification:
-          "Velocity spike warrants review; geo change is suggestive but not definitive. Recommend temporary hold pending human validation.",
-        confidence: 0.58,
-        fairnessFlags: [],
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 15).toISOString()
-      }
-    ],
-    humanReviews: [],
-    recentTransactions: [
-      {
-        id: 4001,
-        userId: 5,
-        amount: 900,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString()
-      },
-      {
-        id: 4002,
-        userId: 5,
-        amount: 1100,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 10).toISOString()
-      }
-    ]
-  },
-  {
-    id: 7,
-    userId: 6,
-    status: "AI_DRAFTED",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4 + 1000 * 60 * 22).toISOString(),
-    context: {
-      source: "prototype",
-      note: "Conflicting signals; medium score but mixed evidence"
-    },
-    riskProfile: {
-      caseId: 7,
-      score: 0.49,
-      signals: [
-        {
-          id: "amount_zscore_high",
-          label: "Amount anomaly: unusually large transfer relative to baseline",
-          weight: 0.75
-        },
-        {
-          id: "known_merchant_whitelist",
-          label: "Counter-signal: known merchant / previously seen beneficiary",
-          weight: 0.35
-        }
-      ]
-    },
-    aiDecisions: [
-      {
-        id: "ai-draft-7",
-        caseId: 7,
-        riskLevel: "MEDIUM",
-        recommendedAction: "MONITOR",
-        justification:
-          "Large amount deviation increases risk, but a known counterparty reduces concern. Recommend review to reconcile conflicting indicators and monitor.",
-        confidence: 0.52,
-        fairnessFlags: [],
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4 + 1000 * 60 * 22).toISOString()
-      }
-    ],
-    humanReviews: []
-  },
-  {
-    id: 8,
-    userId: 7,
-    status: "AI_DRAFTED",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 31).toISOString(),
-    context: {
-      source: "prototype",
-      note: "High risk; structuring pattern across multiple transfers"
-    },
-    riskProfile: {
-      caseId: 8,
-      score: 0.82,
-      signals: [
-        {
-          id: "structuring_detected",
-          label: "Structuring detected: multiple transactions clustered near reporting threshold",
-          weight: 0.9
-        },
-        {
-          id: "velocity_spike_high",
-          label: "Velocity anomaly: rapid series of similar-sized transactions",
-          weight: 0.75
-        }
-      ]
-    },
-    aiDecisions: [
-      {
-        id: "ai-draft-8",
-        caseId: 8,
-        riskLevel: "HIGH",
-        recommendedAction: "ESCALATE",
-        justification:
-          "Structuring behavior and velocity patterns strongly indicate elevated compliance risk. Escalate for follow-up review.",
-        confidence: 0.72,
-        fairnessFlags: [],
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 31).toISOString()
-      }
-    ],
-    humanReviews: [],
-    recentTransactions: [
-      {
-        id: 5001,
-        userId: 7,
-        amount: 4800,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString()
-      },
-      {
-        id: 5002,
-        userId: 7,
-        amount: 4900,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 5).toISOString()
-      }
-    ]
-  },
-  {
-    id: 9,
-    userId: 8,
-    status: "AI_DRAFTED",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 44).toISOString(),
-    context: {
-      source: "prototype",
-      note: "Extreme risk; multiple strong anomalies"
-    },
-    riskProfile: {
-      caseId: 9,
-      score: 0.95,
-      signals: [
-        {
-          id: "geo_anomaly_high_conf",
-          label: "Geo anomaly: high-confidence mismatch with typical user locations",
-          weight: 0.85
-        },
-        {
-          id: "amount_zscore_extreme",
-          label: "Amount anomaly: extreme deviation from baseline",
-          weight: 0.95
-        },
-        {
-          id: "velocity_burst",
-          label: "Velocity burst: many transactions in minutes",
-          weight: 0.9
-        }
-      ]
-    },
-    aiDecisions: [
-      {
-        id: "ai-draft-9",
-        caseId: 9,
-        riskLevel: "HIGH",
-        recommendedAction: "ESCALATE",
-        justification:
-          "Multiple high-severity signals (geo, amount, velocity) indicate a likely anomalous event. Escalate for immediate human review.",
-        confidence: 0.74,
-        fairnessFlags: [],
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 44).toISOString()
-      }
-    ],
-    humanReviews: [],
-    recentTransactions: [
-      {
-        id: 6001,
-        userId: 8,
-        amount: 5200,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString()
-      },
-      {
-        id: 6002,
-        userId: 8,
-        amount: 5300,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 3).toISOString()
-      }
-    ]
-  },
-  {
-    id: 10,
-    userId: 9,
-    status: "OVERRIDDEN",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 58).toISOString(),
-    context: {
-      source: "prototype",
-      note: "Override scenario: AI suggested decline; human approved with documented rationale"
-    },
-    riskProfile: {
-      caseId: 10,
-      score: 0.72,
-      signals: [
-        {
-          id: "velocity_spike",
-          label: "Velocity anomaly: unusual burst of activity",
-          weight: 0.7
-        },
-        {
-          id: "geo_anomaly_med",
-          label: "Geo anomaly: location not in typical set",
-          weight: 0.55
-        }
-      ]
-    },
-    aiDecisions: [
-      {
-        id: "ai-draft-10",
-        caseId: 10,
-        riskLevel: "HIGH",
-        recommendedAction: "ESCALATE",
-        justification:
-          "Elevated risk signals suggest escalation for review; recommend hold pending verification.",
-        confidence: 0.69,
-        fairnessFlags: [],
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 20).toISOString()
-      }
-    ],
-    humanReviews: [
-      {
-        id: "review-10-override",
-        caseId: 10,
-        reviewerId: "supervisor-1",
-        type: "OVERRIDE",
-        finalAction: "MONITOR",
-        rationale:
-          "Human override: verified user travel + merchant verification. Monitor with enhanced scrutiny despite elevated aggregate risk.",
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 58).toISOString()
-      }
-    ],
-    recentTransactions: [
-      {
-        id: 7001,
-        userId: 9,
-        amount: 2500,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
-      },
-      {
-        id: 7002,
-        userId: 9,
-        amount: 2600,
-        currency: "USD",
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 30).toISOString()
-      }
-    ]
-  }
+	{
+		id: 1,
+		userId: 1,
+		status: "AI_DRAFTED",
+		createdAt: new Date().toISOString(),
+		updatedAt: new Date().toISOString(),
+		context: {
+			source: "prototype",
+			note: "Seed case for UI demo",
+		},
+		riskProfile: {
+			caseId: 1,
+			score: 0.3,
+			signals: [
+				{
+					id: "seed_low_risk",
+					label: "Demo seed case with low composite risk",
+					weight: 0.3,
+				},
+			],
+		},
+		aiDecisions: [
+			{
+				id: "seed-ai-draft-1",
+				caseId: 1,
+				riskLevel: "LOW",
+				recommendedAction: "MONITOR",
+				justification: "Seed AI draft for demo case; recommend monitoring and human review before any irreversible action.",
+				confidence: 0.62,
+				fairnessFlags: [],
+				createdAt: new Date().toISOString(),
+			},
+		],
+		humanReviews: [],
+		recentTransactions: [
+			{
+				id: 1001,
+				userId: 1,
+				amount: 75,
+				currency: "USD",
+				merchant: "Starbucks",
+				location: "New York, NY",
+				category: "Food & Beverage",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+			},
+			{
+				id: 1002,
+				userId: 1,
+				amount: 120,
+				currency: "USD",
+				merchant: "Amazon Web Services",
+				location: "Online",
+				category: "Technology",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+			},
+		],
+	},
+	{
+		id: 2,
+		userId: 2,
+		status: "NEW",
+		createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(),
+		updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(),
+		context: {
+			source: "prototype",
+			note: "Freshly created case; not yet evaluated",
+		},
+		aiDecisions: [],
+		humanReviews: [],
+	},
+	{
+		id: 3,
+		userId: 3,
+		status: "UNDER_REVIEW",
+		createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 9).toISOString(),
+		updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 9).toISOString(),
+		context: {
+			source: "prototype",
+			note: "In-flight evaluation (signals/decision not persisted yet)",
+		},
+		aiDecisions: [],
+		humanReviews: [],
+	},
+	{
+		id: 4,
+		userId: 1,
+		status: "APPROVED",
+		createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+		updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 4).toISOString(),
+		context: {
+			source: "prototype",
+			note: "Very low risk; stable behavior",
+		},
+		riskProfile: {
+			caseId: 4,
+			score: 0.05,
+			signals: [
+				{
+					id: "baseline_consistent_activity",
+					label: "Transaction amounts consistent with user baseline",
+					weight: 0.15,
+				},
+			],
+		},
+		aiDecisions: [
+			{
+				id: "ai-draft-4",
+				caseId: 4,
+				riskLevel: "LOW",
+				recommendedAction: "NO_ACTION",
+				justification: "Risk signals are minimal and consistent with historical behavior. No action needed; routine monitoring only.",
+				confidence: 0.78,
+				fairnessFlags: [],
+				createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 2).toISOString(),
+			} satisfies DecisionDraft,
+		],
+		humanReviews: [
+			{
+				id: "review-4-approve",
+				caseId: 4,
+				reviewerId: "analyst-1",
+				type: "APPROVE_AI",
+				finalAction: "NO_ACTION",
+				rationale: "Approved AI recommendation for low-risk case.",
+				createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 4).toISOString(),
+			} satisfies HumanReview,
+		],
+		recentTransactions: [
+			{
+				id: 2001,
+				userId: 1,
+				amount: 60,
+				currency: "USD",
+				merchant: "Costco Wholesale",
+				location: "New York, NY",
+				category: "Retail",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 8).toISOString(),
+			},
+			{
+				id: 2002,
+				userId: 1,
+				amount: 48,
+				currency: "USD",
+				merchant: "Uber Eats",
+				location: "New York, NY",
+				category: "Food & Beverage",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+			},
+		],
+	},
+	{
+		id: 5,
+		userId: 4,
+		status: "AI_DRAFTED",
+		createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString(),
+		updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6 + 1000 * 60 * 9).toISOString(),
+		context: {
+			source: "prototype",
+			note: "Borderline low/medium; single weak anomaly",
+		},
+		riskProfile: {
+			caseId: 5,
+			score: 0.29,
+			signals: [
+				{
+					id: "amount_zscore_minor",
+					label: "Minor amount deviation (low z-score)",
+					weight: 0.25,
+				},
+			],
+		},
+		aiDecisions: [
+			{
+				id: "ai-draft-5",
+				caseId: 5,
+				riskLevel: "LOW",
+				recommendedAction: "MONITOR",
+				justification: "A small deviation is present; recommend lightweight review and monitoring before taking any action.",
+				confidence: 0.61,
+				fairnessFlags: [],
+				createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6 + 1000 * 60 * 9).toISOString(),
+			},
+		],
+		humanReviews: [],
+		recentTransactions: [
+			{
+				id: 3001,
+				userId: 4,
+				amount: 510,
+				currency: "USD",
+				merchant: "Flipkart Payments",
+				location: "Mumbai, IN",
+				category: "Retail",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+			},
+			{
+				id: 3002,
+				userId: 4,
+				amount: 650,
+				currency: "USD",
+				merchant: "HDFC Securities",
+				location: "Mumbai, IN",
+				category: "Investment",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString(),
+			},
+		],
+	},
+	{
+		id: 6,
+		userId: 5,
+		status: "AI_DRAFTED",
+		createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+		updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 15).toISOString(),
+		context: {
+			source: "prototype",
+			note: "Medium risk; velocity anomaly + mild geo change",
+		},
+		riskProfile: {
+			caseId: 6,
+			score: 0.51,
+			signals: [
+				{
+					id: "velocity_spike",
+					label: "Velocity anomaly: increased transaction frequency in short window",
+					weight: 0.6,
+				},
+				{
+					id: "geo_anomaly_low_conf",
+					label: "Geo anomaly: uncommon location observed (low confidence)",
+					weight: 0.35,
+				},
+			],
+		},
+		aiDecisions: [
+			{
+				id: "ai-draft-6",
+				caseId: 6,
+				riskLevel: "MEDIUM",
+				recommendedAction: "TEMP_HOLD",
+				justification:
+					"Velocity spike warrants review; geo change is suggestive but not definitive. Recommend temporary hold pending human validation.",
+				confidence: 0.58,
+				fairnessFlags: [],
+				createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 15).toISOString(),
+			},
+		],
+		humanReviews: [],
+		recentTransactions: [
+			{
+				id: 4001,
+				userId: 5,
+				amount: 900,
+				currency: "USD",
+				merchant: "Wire Transfer",
+				location: "Mexico City, MX",
+				category: "Transfer",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+			},
+			{
+				id: 4002,
+				userId: 5,
+				amount: 1100,
+				currency: "USD",
+				merchant: "Walmart Supercenter",
+				location: "Mexico City, MX",
+				category: "Retail",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 10).toISOString(),
+			},
+		],
+	},
+	{
+		id: 7,
+		userId: 6,
+		status: "AI_DRAFTED",
+		createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString(),
+		updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4 + 1000 * 60 * 22).toISOString(),
+		context: {
+			source: "prototype",
+			note: "Conflicting signals; medium score but mixed evidence",
+		},
+		riskProfile: {
+			caseId: 7,
+			score: 0.49,
+			signals: [
+				{
+					id: "amount_zscore_high",
+					label: "Amount anomaly: unusually large transfer relative to baseline",
+					weight: 0.75,
+				},
+				{
+					id: "known_merchant_whitelist",
+					label: "Counter-signal: known merchant / previously seen beneficiary",
+					weight: 0.35,
+				},
+			],
+		},
+		aiDecisions: [
+			{
+				id: "ai-draft-7",
+				caseId: 7,
+				riskLevel: "MEDIUM",
+				recommendedAction: "MONITOR",
+				justification:
+					"Large amount deviation increases risk, but a known counterparty reduces concern. Recommend review to reconcile conflicting indicators and monitor.",
+				confidence: 0.52,
+				fairnessFlags: [],
+				createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4 + 1000 * 60 * 22).toISOString(),
+			},
+		],
+		humanReviews: [],
+	},
+	{
+		id: 8,
+		userId: 7,
+		status: "AI_DRAFTED",
+		createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
+		updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 31).toISOString(),
+		context: {
+			source: "prototype",
+			note: "High risk; structuring pattern across multiple transfers",
+		},
+		riskProfile: {
+			caseId: 8,
+			score: 0.82,
+			signals: [
+				{
+					id: "structuring_detected",
+					label: "Structuring detected: multiple transactions clustered near reporting threshold",
+					weight: 0.9,
+				},
+				{
+					id: "velocity_spike_high",
+					label: "Velocity anomaly: rapid series of similar-sized transactions",
+					weight: 0.75,
+				},
+			],
+		},
+		aiDecisions: [
+			{
+				id: "ai-draft-8",
+				caseId: 8,
+				riskLevel: "HIGH",
+				recommendedAction: "ESCALATE",
+				justification:
+					"Structuring behavior and velocity patterns strongly indicate elevated compliance risk. Escalate for follow-up review.",
+				confidence: 0.72,
+				fairnessFlags: [],
+				createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 31).toISOString(),
+			},
+		],
+		humanReviews: [],
+		recentTransactions: [
+			{
+				id: 5001,
+				userId: 7,
+				amount: 4800,
+				currency: "USD",
+				merchant: "Cash Deposit ATM",
+				location: "Seoul, KR",
+				category: "Cash Deposit",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
+			},
+			{
+				id: 5002,
+				userId: 7,
+				amount: 4900,
+				currency: "USD",
+				merchant: "Cash Deposit ATM",
+				location: "Seoul, KR",
+				category: "Cash Deposit",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 5).toISOString(),
+			},
+		],
+	},
+	{
+		id: 9,
+		userId: 8,
+		status: "AI_DRAFTED",
+		createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+		updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 44).toISOString(),
+		context: {
+			source: "prototype",
+			note: "Extreme risk; multiple strong anomalies",
+		},
+		riskProfile: {
+			caseId: 9,
+			score: 0.95,
+			signals: [
+				{
+					id: "geo_anomaly_high_conf",
+					label: "Geo anomaly: high-confidence mismatch with typical user locations",
+					weight: 0.85,
+				},
+				{
+					id: "amount_zscore_extreme",
+					label: "Amount anomaly: extreme deviation from baseline",
+					weight: 0.95,
+				},
+				{
+					id: "velocity_burst",
+					label: "Velocity burst: many transactions in minutes",
+					weight: 0.9,
+				},
+			],
+		},
+		aiDecisions: [
+			{
+				id: "ai-draft-9",
+				caseId: 9,
+				riskLevel: "HIGH",
+				recommendedAction: "ESCALATE",
+				justification:
+					"Multiple high-severity signals (geo, amount, velocity) indicate a likely anomalous event. Escalate for immediate human review.",
+				confidence: 0.74,
+				fairnessFlags: [],
+				createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 44).toISOString(),
+			},
+		],
+		humanReviews: [],
+		recentTransactions: [
+			{
+				id: 6001,
+				userId: 8,
+				amount: 5200,
+				currency: "USD",
+				merchant: "SWIFT Intl Transfer",
+				location: "Unknown",
+				category: "International Wire",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+			},
+			{
+				id: 6002,
+				userId: 8,
+				amount: 5300,
+				currency: "USD",
+				merchant: "SWIFT Intl Transfer",
+				location: "Unknown",
+				category: "International Wire",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 3).toISOString(),
+			},
+		],
+	},
+	{
+		id: 10,
+		userId: 9,
+		status: "OVERRIDDEN",
+		createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+		updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 58).toISOString(),
+		context: {
+			source: "prototype",
+			note: "Override scenario: AI suggested decline; human approved with documented rationale",
+		},
+		riskProfile: {
+			caseId: 10,
+			score: 0.72,
+			signals: [
+				{
+					id: "velocity_spike",
+					label: "Velocity anomaly: unusual burst of activity",
+					weight: 0.7,
+				},
+				{
+					id: "geo_anomaly_med",
+					label: "Geo anomaly: location not in typical set",
+					weight: 0.55,
+				},
+			],
+		},
+		aiDecisions: [
+			{
+				id: "ai-draft-10",
+				caseId: 10,
+				riskLevel: "HIGH",
+				recommendedAction: "ESCALATE",
+				justification: "Elevated risk signals suggest escalation for review; recommend hold pending verification.",
+				confidence: 0.69,
+				fairnessFlags: [],
+				createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 20).toISOString(),
+			},
+		],
+		humanReviews: [
+			{
+				id: "review-10-override",
+				caseId: 10,
+				reviewerId: "supervisor-1",
+				type: "OVERRIDE",
+				finalAction: "MONITOR",
+				rationale:
+					"Human override: verified user travel + merchant verification. Monitor with enhanced scrutiny despite elevated aggregate risk.",
+				createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 58).toISOString(),
+			},
+		],
+		recentTransactions: [
+			{
+				id: 7001,
+				userId: 9,
+				amount: 2500,
+				currency: "USD",
+				merchant: "Travel Agency Intl",
+				location: "Dubai, AE",
+				category: "Travel",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+			},
+			{
+				id: 7002,
+				userId: 9,
+				amount: 2600,
+				currency: "USD",
+				merchant: "Hotel Booking",
+				location: "Dubai, AE",
+				category: "Travel",
+				timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 + 1000 * 60 * 30).toISOString(),
+			},
+		],
+	},
 ];
-

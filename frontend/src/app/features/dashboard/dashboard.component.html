@@ -1,230 +1,354 @@
-<div class="min-h-screen bg-slate-950 text-slate-50">
-  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
-    <div class="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-      <div>
-        <h1 class="text-xl font-semibold tracking-tight">
-          {{ title }}
-        </h1>
-        <p class="text-sm text-slate-400">
-          AI drafts, humans supervise - demo dashboard
-        </p>
-      </div>
-      <button type="button"
-        class="inline-flex items-center gap-2 rounded-md bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950 shadow-sm hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
-        (click)="evaluateSample()" [disabled]="isEvaluating">
-        <span *ngIf="!isEvaluating">Evaluate sample transaction</span>
-        <span *ngIf="isEvaluating">Evaluating...</span>
-      </button>
-      <button type="button"
-        class="ml-2 inline-flex items-center gap-2 rounded-md border border-indigo-500/50 bg-indigo-950/30 px-4 py-2 text-sm font-medium text-indigo-200 hover:bg-indigo-900/40"
-        (click)="showSimForm = !showSimForm">
-        {{ showSimForm ? 'Close simulator' : 'Simulate custom' }}
-      </button>
-    </div>
-  </header>
-
-  <!-- Transaction Simulator (US-07) -->
-  <div *ngIf="showSimForm" class="border-b border-slate-800 bg-slate-900/80 backdrop-blur">
-    <div class="mx-auto max-w-6xl px-6 py-4 space-y-3">
-      <div class="flex items-center justify-between">
-        <div class="text-xs font-semibold uppercase tracking-wide text-indigo-200">
-          Transaction Simulator
+﻿<div class="min-h-screen bg-slate-950 text-slate-100">
+  <!-- Top navigation bar -->
+  <nav class="border-b border-slate-800/80 bg-slate-900/95 backdrop-blur-sm">
+    <div class="mx-auto max-w-[1400px] px-6">
+      <div class="flex h-14 items-center justify-between">
+        <!-- Brand -->
+        <div class="flex items-center gap-3">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20">
+            <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+          </div>
+          <div>
+            <span class="text-sm font-semibold tracking-tight text-slate-50">Sentinel</span>
+            <span class="ml-1.5 rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-400">COMPLIANCE</span>
+          </div>
         </div>
-        <div class="flex flex-wrap gap-2">
+
+        <!-- Nav links -->
+        <div class="flex items-center gap-1">
+          <a class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-50 bg-slate-800/60" routerLink="/">
+            Dashboard
+          </a>
+          <span class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 cursor-default">
+            Reports
+          </span>
+          <span class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 cursor-default">
+            Settings
+          </span>
+        </div>
+
+        <!-- Right side actions -->
+        <div class="flex items-center gap-3">
+          <button type="button"
+            class="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-3.5 py-1.5 text-xs font-semibold text-slate-950 shadow-sm shadow-emerald-500/25 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
+            (click)="showSimForm = !showSimForm">
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            {{ showSimForm ? 'Close' : 'New Transaction' }}
+          </button>
+          <div class="h-6 w-px bg-slate-700"></div>
+          <div class="flex items-center gap-2">
+            <div class="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-500/20 text-[11px] font-semibold text-indigo-300">RT</div>
+            <span class="text-xs text-slate-400">Rachel Torres</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Transaction Simulator Panel -->
+  <div *ngIf="showSimForm" class="border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-sm">
+    <div class="mx-auto max-w-[1400px] px-6 py-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <svg class="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+          </svg>
+          <span class="text-xs font-semibold uppercase tracking-wider text-indigo-300">Transaction Simulator</span>
+        </div>
+        <div class="flex flex-wrap gap-1.5">
           <button *ngFor="let p of presets" type="button"
-            class="rounded-full border border-slate-700 bg-slate-950/40 px-3 py-1 text-[11px] text-slate-300 hover:bg-slate-800/60"
+            class="rounded-full border border-slate-700/60 bg-slate-800/40 px-2.5 py-1 text-[10px] font-medium text-slate-300 transition hover:border-indigo-500/40 hover:bg-indigo-950/30 hover:text-indigo-200"
             (click)="applyPreset(p)">
             {{ p.label }}
           </button>
         </div>
       </div>
-      <div class="grid gap-3 md:grid-cols-5">
+      <div class="grid gap-3 md:grid-cols-6">
         <div class="space-y-1">
-          <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">User ID</label>
+          <label class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Customer ID</label>
           <input type="number"
-            class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-sm text-slate-50"
+            class="w-full rounded-lg border border-slate-700/60 bg-slate-950/60 px-3 py-2 text-sm text-slate-50 transition focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
             [(ngModel)]="simUserId" min="1" />
         </div>
         <div class="space-y-1">
-          <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Amount</label>
+          <label class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Amount</label>
           <input type="number"
-            class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-sm text-slate-50"
+            class="w-full rounded-lg border border-slate-700/60 bg-slate-950/60 px-3 py-2 text-sm text-slate-50 transition focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
             [(ngModel)]="simAmount" min="0" />
         </div>
         <div class="space-y-1">
-          <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Currency</label>
+          <label class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Currency</label>
           <input type="text"
-            class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-sm text-slate-50"
+            class="w-full rounded-lg border border-slate-700/60 bg-slate-950/60 px-3 py-2 text-sm text-slate-50 transition focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
             [(ngModel)]="simCurrency" />
         </div>
         <div class="space-y-1">
-          <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Merchant</label>
+          <label class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Merchant</label>
           <input type="text"
-            class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-sm text-slate-50"
+            class="w-full rounded-lg border border-slate-700/60 bg-slate-950/60 px-3 py-2 text-sm text-slate-50 transition focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
             [(ngModel)]="simMerchant" />
         </div>
         <div class="space-y-1">
-          <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Location</label>
+          <label class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Location</label>
           <input type="text"
-            class="w-full rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-sm text-slate-50"
+            class="w-full rounded-lg border border-slate-700/60 bg-slate-950/60 px-3 py-2 text-sm text-slate-50 transition focus:border-indigo-500/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/30"
             [(ngModel)]="simLocation" />
         </div>
+        <div class="flex items-end">
+          <button type="button"
+            class="w-full rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-indigo-500/25 transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
+            (click)="evaluateCustom()" [disabled]="isEvaluating">
+            <span *ngIf="!isEvaluating">Evaluate</span>
+            <span *ngIf="isEvaluating" class="flex items-center justify-center gap-2">
+              <svg class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Processing
+            </span>
+          </button>
+        </div>
       </div>
-      <button type="button"
-        class="rounded-md bg-indigo-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
-        (click)="evaluateCustom()" [disabled]="isEvaluating">
-        <span *ngIf="!isEvaluating">Evaluate this transaction</span>
-        <span *ngIf="isEvaluating">Evaluating...</span>
-      </button>
     </div>
   </div>
 
-  <main class="mx-auto max-w-6xl px-6 py-6 space-y-4">
+  <main class="mx-auto max-w-[1400px] px-6 py-6 space-y-5">
 
-    <!-- Filters & sort (FR-FE-02) -->
-    <section class="flex flex-wrap items-end gap-3">
-      <div class="space-y-1">
-        <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Status</label>
-        <select class="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-50"
-          [(ngModel)]="filterStatus">
-          <option value="">All</option>
-          <option value="NEW">NEW</option>
-          <option value="AI_DRAFTED">AI_DRAFTED</option>
-          <option value="UNDER_REVIEW">UNDER_REVIEW</option>
-          <option value="APPROVED">APPROVED</option>
-          <option value="OVERRIDDEN">OVERRIDDEN</option>
-          <option value="CLOSED">CLOSED</option>
-        </select>
+    <!-- Summary stats cards -->
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Total Cases</span>
+          <svg class="h-4 w-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+          </svg>
+        </div>
+        <div class="mt-2 text-2xl font-bold text-slate-50">{{ cases.length }}</div>
+        <div class="mt-1 text-[11px] text-slate-500">across all statuses</div>
       </div>
 
-      <div class="space-y-1">
-        <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Risk level</label>
-        <select class="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-50"
-          [(ngModel)]="filterRisk">
-          <option value="">All</option>
-          <option value="LOW">Low</option>
-          <option value="MEDIUM">Medium</option>
-          <option value="HIGH">High</option>
-        </select>
+      <div class="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-amber-400/80">Pending Review</span>
+          <svg class="h-4 w-4 text-amber-500/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="mt-2 text-2xl font-bold text-amber-200">{{ pendingCount }}</div>
+        <div class="mt-1 text-[11px] text-amber-400/60">awaiting human decision</div>
       </div>
 
-      <div class="space-y-1">
-        <label class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Search</label>
-        <input type="text"
-          class="rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-slate-50 placeholder-slate-500"
-          placeholder="Case ID, User ID..." [(ngModel)]="filterSearchTerm" />
+      <div class="rounded-xl border border-rose-500/20 bg-rose-500/5 p-4">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-rose-400/80">High Risk</span>
+          <svg class="h-4 w-4 text-rose-500/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+        </div>
+        <div class="mt-2 text-2xl font-bold text-rose-200">{{ highRiskCount }}</div>
+        <div class="mt-1 text-[11px] text-rose-400/60">risk score above 0.66</div>
       </div>
 
-      <button type="button"
-        class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800/60"
-        (click)="clearFilters()">
-        Clear filters
-      </button>
-
-      <div class="ml-auto flex items-center gap-2">
-        <span class="text-[11px] text-slate-500 uppercase tracking-wide">Sort by</span>
-        <button *ngFor="let col of [
-            { field: 'id', label: 'ID' },
-            { field: 'status', label: 'Status' },
-            { field: 'risk', label: 'Risk' },
-            { field: 'updatedAt', label: 'Updated' }
-          ]" type="button" class="rounded-md border px-2 py-1 text-xs" [ngClass]="{
-            'border-indigo-500 bg-indigo-950/40 text-indigo-200': sortField === col.field,
-            'border-slate-700 bg-slate-950/40 text-slate-400 hover:bg-slate-800/60': sortField !== col.field
-          }" (click)="toggleSort($any(col.field))">
-          {{ col.label }}
-          <span *ngIf="sortField === col.field">{{ sortDirection === 'asc' ? '&#8593;' : '&#8595;' }}</span>
-        </button>
+      <div class="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-400/80">Resolved</span>
+          <svg class="h-4 w-4 text-emerald-500/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="mt-2 text-2xl font-bold text-emerald-200">{{ resolvedCount }}</div>
+        <div class="mt-1 text-[11px] text-emerald-400/60">approved, overridden, or closed</div>
       </div>
     </section>
 
-    <section class="space-y-3">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">
-        Cases
-        <span class="text-slate-500 font-normal">({{ filteredCases.length }} of {{ cases.length }})</span>
-      </h2>
-
-      <div class="rounded-xl border border-slate-800 bg-slate-900/60 shadow-sm overflow-hidden">
-        <div class="border-b border-slate-800 px-4 py-2 text-xs text-slate-400">
-          Active &amp; recent cases
+    <!-- Filters & sort -->
+    <section class="rounded-xl border border-slate-800/60 bg-slate-900/40 p-4">
+      <div class="flex flex-wrap items-end gap-3">
+        <div class="space-y-1">
+          <label class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Status</label>
+          <select class="rounded-lg border border-slate-700/60 bg-slate-950/60 px-3 py-1.5 text-xs text-slate-200 transition focus:border-indigo-500/50 focus:outline-none"
+            [(ngModel)]="filterStatus">
+            <option value="">All statuses</option>
+            <option value="NEW">New</option>
+            <option value="AI_DRAFTED">AI Drafted</option>
+            <option value="UNDER_REVIEW">Under Review</option>
+            <option value="APPROVED">Approved</option>
+            <option value="OVERRIDDEN">Overridden</option>
+            <option value="CLOSED">Closed</option>
+          </select>
         </div>
-        <div *ngIf="isLoadingCases" class="p-4 text-sm text-slate-400">
+
+        <div class="space-y-1">
+          <label class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Risk Level</label>
+          <select class="rounded-lg border border-slate-700/60 bg-slate-950/60 px-3 py-1.5 text-xs text-slate-200 transition focus:border-indigo-500/50 focus:outline-none"
+            [(ngModel)]="filterRisk">
+            <option value="">All levels</option>
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+          </select>
+        </div>
+
+        <div class="space-y-1 flex-1 min-w-[200px]">
+          <label class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
+          <div class="relative">
+            <svg class="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input type="text"
+              class="w-full rounded-lg border border-slate-700/60 bg-slate-950/60 pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-600 transition focus:border-indigo-500/50 focus:outline-none"
+              placeholder="Search by case ID, customer, merchant..." [(ngModel)]="filterSearchTerm" />
+          </div>
+        </div>
+
+        <button type="button"
+          class="rounded-lg border border-slate-700/60 bg-slate-800/40 px-3 py-1.5 text-[11px] text-slate-400 transition hover:bg-slate-700/40 hover:text-slate-200"
+          (click)="clearFilters()">
+          Clear
+        </button>
+
+        <div class="ml-auto flex items-center gap-1.5">
+          <span class="text-[10px] text-slate-600 uppercase tracking-wider mr-1">Sort</span>
+          <button *ngFor="let col of [
+              { field: 'id', label: 'ID' },
+              { field: 'status', label: 'Status' },
+              { field: 'risk', label: 'Risk' },
+              { field: 'updatedAt', label: 'Updated' }
+            ]" type="button" class="rounded-md border px-2 py-1 text-[11px] font-medium transition" [ngClass]="{
+              'border-indigo-500/50 bg-indigo-500/10 text-indigo-300': sortField === col.field,
+              'border-slate-700/40 text-slate-500 hover:text-slate-300 hover:border-slate-600': sortField !== col.field
+            }" (click)="toggleSort($any(col.field))">
+            {{ col.label }}
+            <span *ngIf="sortField === col.field" class="ml-0.5">{{ sortDirection === 'asc' ? '&#8593;' : '&#8595;' }}</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cases table -->
+    <section>
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          Compliance Cases
+          <span class="ml-1 font-normal text-slate-600">({{ filteredCases.length }} of {{ cases.length }})</span>
+        </h2>
+      </div>
+
+      <div class="overflow-hidden rounded-xl border border-slate-800/60 bg-slate-900/40">
+        <!-- Table header -->
+        <div class="grid grid-cols-[60px_1fr_120px_100px_120px_100px_80px] gap-2 border-b border-slate-800/60 bg-slate-900/80 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+          <div>ID</div>
+          <div>Customer</div>
+          <div>Status</div>
+          <div>Risk</div>
+          <div>AI Decision</div>
+          <div>Updated</div>
+          <div class="text-right">Action</div>
+        </div>
+
+        <div *ngIf="isLoadingCases" class="px-4 py-8 text-center text-sm text-slate-500">
+          <svg class="mx-auto h-5 w-5 animate-spin text-slate-600 mb-2" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
           Loading cases...
         </div>
-        <div *ngIf="!isLoadingCases && filteredCases.length === 0" class="p-4 text-sm text-slate-400">
-          <span *ngIf="cases.length === 0">No cases yet. Use "Evaluate sample transaction" to create one.</span>
+
+        <div *ngIf="!isLoadingCases && filteredCases.length === 0" class="px-4 py-8 text-center text-sm text-slate-500">
+          <span *ngIf="cases.length === 0">No cases yet. Use <strong>New Transaction</strong> to evaluate one.</span>
           <span *ngIf="cases.length > 0">No cases match the current filters.</span>
         </div>
-        <ul *ngIf="!isLoadingCases && filteredCases.length > 0" class="divide-y divide-slate-800">
-          <li *ngFor="let c of filteredCases"
-            class="flex items-center justify-between px-4 py-3 text-sm hover:bg-slate-800/60">
+
+        <!-- Table rows -->
+        <div *ngIf="!isLoadingCases && filteredCases.length > 0">
+          <div *ngFor="let c of filteredCases; let i = index"
+            class="grid grid-cols-[60px_1fr_120px_100px_120px_100px_80px] gap-2 items-center px-4 py-3 text-xs transition hover:bg-slate-800/30"
+            [ngClass]="{ 'border-t border-slate-800/40': i > 0 }">
+
+            <!-- Case ID -->
+            <div class="font-mono font-semibold text-slate-300">#{{ c.id }}</div>
+
+            <!-- Customer info -->
             <div>
-              <div class="flex items-center gap-2">
-                <span class="font-medium text-slate-50">Case #{{ c.id }}</span>
-                <span class="text-xs rounded-full border border-slate-700 px-2 py-0.5 text-slate-300">
-                  User {{ c.userId }}
-                </span>
-              </div>
-              <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                <span>
-                  Status:
-                  <span class="uppercase tracking-wide">{{ c.status }}</span>
-                </span>
-                <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium"
-                  [ngClass]="{
-                    'border-emerald-500/60 bg-emerald-500/10 text-emerald-200': getDecisionLabel(c) === 'APPROVED',
-                    'border-rose-500/60 bg-rose-500/10 text-rose-200': getDecisionLabel(c) === 'OVERRIDDEN',
-                    'border-slate-700 bg-slate-800/60 text-slate-300': getDecisionLabel(c) === 'PENDING'
-                  }">
-                  <span *ngIf="getDecisionLabel(c) === 'APPROVED'">Approved (AI-aligned)</span>
-                  <span *ngIf="getDecisionLabel(c) === 'OVERRIDDEN'">Overridden</span>
-                  <span *ngIf="getDecisionLabel(c) === 'PENDING'">Pending human decision</span>
-                </span>
-              </div>
+              <div class="font-medium text-slate-200">{{ getCustomerName(c.userId) }}</div>
+              <div class="text-[11px] text-slate-500">ID: {{ c.userId }}  {{ getCustomerCountry(c.userId) }}</div>
             </div>
-            <div class="flex items-center gap-3">
+
+            <!-- Status badge -->
+            <div>
+              <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold" [ngClass]="{
+                'bg-blue-500/10 text-blue-300': c.status === 'NEW',
+                'bg-indigo-500/10 text-indigo-300': c.status === 'AI_DRAFTED',
+                'bg-amber-500/10 text-amber-300': c.status === 'UNDER_REVIEW',
+                'bg-emerald-500/10 text-emerald-300': c.status === 'APPROVED',
+                'bg-rose-500/10 text-rose-300': c.status === 'OVERRIDDEN',
+                'bg-slate-500/10 text-slate-400': c.status === 'CLOSED'
+              }">
+                {{ formatStatus(c.status) }}
+              </span>
+            </div>
+
+            <!-- Risk score -->
+            <div>
               <sentinel-risk-badge [score]="c.riskProfile?.score"></sentinel-risk-badge>
-              <a class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-800/60"
+            </div>
+
+            <!-- AI draft decision -->
+            <div>
+              <span *ngIf="getAiAction(c)" class="text-[11px] text-slate-400">{{ getAiAction(c) }}</span>
+              <span *ngIf="!getAiAction(c)" class="text-[11px] text-slate-600"></span>
+            </div>
+
+            <!-- Updated -->
+            <div class="text-[11px] text-slate-500">
+              {{ c.updatedAt | date: 'MMM d, HH:mm' }}
+            </div>
+
+            <!-- Action -->
+            <div class="text-right">
+              <a class="inline-flex items-center gap-1 rounded-md border border-slate-700/50 bg-slate-800/30 px-2.5 py-1 text-[11px] font-medium text-slate-300 transition hover:border-indigo-500/40 hover:text-indigo-300"
                 [routerLink]="['/cases', c.id]">
-                Open
+                Review
+                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
               </a>
             </div>
-          </li>
-        </ul>
+          </div>
+        </div>
       </div>
 
+      <!-- Error message -->
       <div *ngIf="errorMessage"
-        class="rounded-md border border-rose-500/50 bg-rose-950/40 px-3 py-2 text-xs text-rose-200">
-        {{ errorMessage }}
+        class="mt-3 rounded-lg border border-rose-500/30 bg-rose-500/5 px-4 py-2.5 text-xs text-rose-300">
+        <span class="font-semibold">Error:</span> {{ errorMessage }}
       </div>
 
-      <!-- Pagination (API-02) -->
+      <!-- Pagination -->
       <div *ngIf="pagination.totalPages > 1"
-        class="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2">
-        <div class="text-xs text-slate-400">
-          Page {{ pagination.page }} of {{ pagination.totalPages }} ({{ pagination.total }} total cases)
+        class="mt-3 flex items-center justify-between rounded-xl border border-slate-800/60 bg-slate-900/40 px-4 py-2.5">
+        <div class="text-[11px] text-slate-500">
+          Page {{ pagination.page }} of {{ pagination.totalPages }}
+          <span class="text-slate-600"></span>
+          {{ pagination.total }} total cases
         </div>
         <div class="flex items-center gap-1">
           <button type="button"
-            class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1 text-xs text-slate-300 hover:bg-slate-800/60 disabled:opacity-40 disabled:cursor-not-allowed"
-            (click)="goToPage(1)" [disabled]="pagination.page === 1">
-            First
-          </button>
+            class="rounded-md border border-slate-700/40 px-2.5 py-1 text-[11px] text-slate-400 transition hover:bg-slate-800/40 disabled:opacity-30 disabled:cursor-not-allowed"
+            (click)="goToPage(1)" [disabled]="pagination.page === 1">First</button>
           <button type="button"
-            class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1 text-xs text-slate-300 hover:bg-slate-800/60 disabled:opacity-40 disabled:cursor-not-allowed"
-            (click)="goToPage(pagination.page - 1)" [disabled]="pagination.page === 1">
-            Prev
-          </button>
+            class="rounded-md border border-slate-700/40 px-2.5 py-1 text-[11px] text-slate-400 transition hover:bg-slate-800/40 disabled:opacity-30 disabled:cursor-not-allowed"
+            (click)="goToPage(pagination.page - 1)" [disabled]="pagination.page === 1">Prev</button>
           <button type="button"
-            class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1 text-xs text-slate-300 hover:bg-slate-800/60 disabled:opacity-40 disabled:cursor-not-allowed"
-            (click)="goToPage(pagination.page + 1)" [disabled]="pagination.page >= pagination.totalPages">
-            Next
-          </button>
+            class="rounded-md border border-slate-700/40 px-2.5 py-1 text-[11px] text-slate-400 transition hover:bg-slate-800/40 disabled:opacity-30 disabled:cursor-not-allowed"
+            (click)="goToPage(pagination.page + 1)" [disabled]="pagination.page >= pagination.totalPages">Next</button>
           <button type="button"
-            class="rounded-md border border-slate-700 bg-slate-950/40 px-3 py-1 text-xs text-slate-300 hover:bg-slate-800/60 disabled:opacity-40 disabled:cursor-not-allowed"
-            (click)="goToPage(pagination.totalPages)" [disabled]="pagination.page >= pagination.totalPages">
-            Last
-          </button>
+            class="rounded-md border border-slate-700/40 px-2.5 py-1 text-[11px] text-slate-400 transition hover:bg-slate-800/40 disabled:opacity-30 disabled:cursor-not-allowed"
+            (click)="goToPage(pagination.totalPages)" [disabled]="pagination.page >= pagination.totalPages">Last</button>
         </div>
       </div>
     </section>

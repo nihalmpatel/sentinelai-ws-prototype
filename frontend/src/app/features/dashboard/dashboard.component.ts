@@ -27,7 +27,7 @@ interface SimPreset {
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
-  title = 'Sentinel – Compliance Decision Demo';
+  title = 'Sentinel – AI-Native Compliance Decision Engine';
 
   cases: Case[] = [];
 
@@ -53,7 +53,23 @@ export class DashboardComponent implements OnInit {
   simLocation = 'Online';
 
   // ── Pagination (API-02) ──
-  pagination: PaginationInfo = { page: 1, limit: 20, total: 0, totalPages: 1 };
+  pagination: PaginationInfo = { page: 1, limit: 10, total: 0, totalPages: 1 };
+
+  // ── Customer lookup map ──
+  private readonly customerMap: Record<
+    number,
+    { name: string; country: string }
+  > = {
+    1: { name: 'James Sullivan', country: 'US' },
+    2: { name: 'Elena Vostrikova', country: 'DE' },
+    3: { name: 'Marcus Obi', country: 'NG' },
+    4: { name: 'Priya Chakrabarti', country: 'IN' },
+    5: { name: 'Carlos Medina', country: 'MX' },
+    6: { name: 'Sophie Laurent', country: 'FR' },
+    7: { name: 'David Kim', country: 'KR' },
+    8: { name: 'Amara Okafor', country: 'KE' },
+    9: { name: 'Henrik Lindqvist', country: 'SE' },
+  };
 
   readonly presets: SimPreset[] = [
     {
@@ -114,6 +130,48 @@ export class DashboardComponent implements OnInit {
     this.loadCases();
   }
 
+  // ── Summary stats ──
+  get pendingCount(): number {
+    return this.cases.filter(
+      (c) =>
+        c.status === 'NEW' ||
+        c.status === 'AI_DRAFTED' ||
+        c.status === 'UNDER_REVIEW',
+    ).length;
+  }
+
+  get highRiskCount(): number {
+    return this.cases.filter((c) => (c.riskProfile?.score ?? 0) >= 0.66).length;
+  }
+
+  get resolvedCount(): number {
+    return this.cases.filter(
+      (c) =>
+        c.status === 'APPROVED' ||
+        c.status === 'OVERRIDDEN' ||
+        c.status === 'CLOSED',
+    ).length;
+  }
+
+  // ── Customer helpers ──
+  getCustomerName(userId: number): string {
+    return this.customerMap[userId]?.name ?? `Customer #${userId}`;
+  }
+
+  getCustomerCountry(userId: number): string {
+    return this.customerMap[userId]?.country ?? '—';
+  }
+
+  formatStatus(status: string): string {
+    return status.replace(/_/g, ' ');
+  }
+
+  getAiAction(c: Case): string | null {
+    const drafts = c.aiDecisions;
+    if (!drafts || drafts.length === 0) return null;
+    return drafts[drafts.length - 1].recommendedAction;
+  }
+
   /** Filtered & sorted view of cases. */
   get filteredCases(): Case[] {
     let result = [...this.cases];
@@ -166,12 +224,6 @@ export class DashboardComponent implements OnInit {
     });
 
     return result;
-  }
-
-  getDecisionLabel(c: Case): 'APPROVED' | 'OVERRIDDEN' | 'PENDING' {
-    if (c.status === 'APPROVED') return 'APPROVED';
-    if (c.status === 'OVERRIDDEN') return 'OVERRIDDEN';
-    return 'PENDING';
   }
 
   toggleSort(field: SortField): void {

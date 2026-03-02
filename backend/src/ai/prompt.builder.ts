@@ -1,5 +1,5 @@
 import {Case} from "../models/case.model";
-import {mockUsers} from "../data/mock.users";
+import {mockCustomers} from "../data/mock.users";
 import {mockTransactions} from "../data/mock.transactions";
 import {LOW_RISK_APPROVAL_THRESHOLD} from "../core/policy.config";
 
@@ -15,10 +15,16 @@ import {LOW_RISK_APPROVAL_THRESHOLD} from "../core/policy.config";
  */
 export function buildEvaluationPrompt(inputCase: Case): string {
 	// ── User profile ──
-	const user = mockUsers.find((u) => u.id === inputCase.userId) ?? {
+	const user = mockCustomers.find((u) => u.id === inputCase.userId) ?? {
 		id: inputCase.userId,
 		name: "Unknown",
-		role: "analyst",
+		email: "unknown@example.com",
+		role: "customer",
+		accountType: "Unknown",
+		riskTier: "standard" as const,
+		kycStatus: "pending" as const,
+		country: "US",
+		joinedAt: new Date().toISOString(),
 	};
 
 	// ── Recent transactions (last 10) ──
@@ -30,6 +36,9 @@ export function buildEvaluationPrompt(inputCase: Case): string {
 			id: t.id,
 			amount: t.amount,
 			currency: t.currency,
+			merchant: t.merchant,
+			location: t.location,
+			category: t.category,
 			timestamp: t.timestamp,
 		}));
 
@@ -55,7 +64,13 @@ export function buildEvaluationPrompt(inputCase: Case): string {
 		userProfile: {
 			id: user.id,
 			name: user.name,
+			email: user.email,
 			role: user.role,
+			accountType: user.accountType,
+			riskTier: user.riskTier,
+			kycStatus: user.kycStatus,
+			country: user.country,
+			joinedAt: user.joinedAt,
 		},
 		recentTransactions,
 		risk: inputCase.riskProfile ?? null,
